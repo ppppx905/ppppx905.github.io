@@ -3,17 +3,17 @@
 ## Source: https://github.com/hexojs/hexo/
 
 # Site
-title: Hexo
-subtitle: ''
-description: ''
-keywords:
-author: John Doe
-language: en
+title: 星尘战棋
+subtitle: JOJO 同人战棋
+description: JOJO 星尘战棋 —— 网页版同人战棋游戏，打开就能玩。
+keywords: 星尘战棋,JOJO,同人游戏,战棋,网页游戏
+author: ppppx905
+language: zh-CN
 timezone: ''
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: http://example.com
+url: https://ppppx905.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
