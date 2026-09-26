@@ -25,6 +25,11 @@ jobs:
         run: pnpm install
       - name: Build
         run: pnpm run build
+      # 用仓库里的极简首页覆盖博客自动生成的首页：
+      # 主题是 npm 包装的（hexo-theme-landscape），改 node_modules 不会进 git、云端也留不住，
+      # 所以首页 HTML 放在 landing/ 里，构建完后覆盖过去。
+      - name: Use the minimal landing page as the homepage
+        run: cp landing/index.html public/index.html
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

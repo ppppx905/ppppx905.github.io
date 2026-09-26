@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>星尘战棋</title>
+<meta name="description" content="JOJO 同人战棋 · 网页版">
+<style>
+  :root {
+    --ink: #ece6f8;
+    --dim: #9d93b8;
+    --gold: #e2bf5d;
+    --violet: #8b6fd6;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    text-align: center;
+    color: var(--ink);
+    font-family: system-ui, -apple-system, "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+    background:
+      radial-gradient(115% 85% at 50% 0%, #2a1f47 0%, #171128 52%, #09060f 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* 右上角：B 站主页 */
+  .bili {
+    position: fixed;
+    top: max(18px, env(safe-area-inset-top));
+    right: max(18px, env(safe-area-inset-right));
+    padding: 8px 16px;
+    border: 1px solid rgba(226, 191, 93, .35);
+    border-radius: 999px;
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 14px;
+    letter-spacing: .04em;
+    background: rgba(226, 191, 93, .06);
+    transition: background .18s ease, border-color .18s ease, transform .18s ease;
+  }
+  .bili:hover, .bili:focus-visible {
+    background: rgba(226, 191, 93, .16);
+    border-color: rgba(226, 191, 93, .7);
+    transform: translateY(-1px);
+    outline: none;
+  }
+
+  main { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+
+  h1 {
+    margin: 0;
+    font-size: clamp(38px, 11vw, 76px);
+    font-weight: 800;
+    letter-spacing: clamp(4px, 1.6vw, 14px);
+    text-indent: clamp(4px, 1.6vw, 14px);   /* 抵消末尾字距，保持视觉居中 */
+    background: linear-gradient(180deg, #fffaf0 12%, var(--gold) 96%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .sub {
+    margin: 2px 0 44px;
+    font-size: clamp(12px, 3.4vw, 15px);
+    letter-spacing: .32em;
+    text-indent: .32em;
+    color: var(--dim);
+  }
+
+  .launch {
+    display: inline-block;
+    padding: clamp(15px, 4vw, 19px) clamp(38px, 11vw, 62px);
+    border-radius: 999px;
+    font-size: clamp(16px, 4.4vw, 20px);
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-indent: .12em;
+    text-decoration: none;
+    color: #17102a;
+    background: linear-gradient(135deg, #f0d27a 0%, #e2bf5d 45%, #c79a34 100%);
+    box-shadow: 0 14px 34px -12px rgba(226, 191, 93, .55), inset 0 1px 0 rgba(255, 255, 255, .5);
+    transition: transform .18s ease, box-shadow .18s ease;
+  }
+  .launch:hover, .launch:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 42px -12px rgba(226, 191, 93, .7), inset 0 1px 0 rgba(255, 255, 255, .6);
+    outline: none;
+  }
+  .launch:active { transform: translateY(0); }
+
+  .hint {
+    margin-top: 26px;
+    font-size: 12px;
+    color: #6e6486;
+    line-height: 1.9;
+  }
+
+  footer {
+    position: fixed;
+    left: 0; right: 0;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    font-size: 12px;
+    color: #5d5476;
+    padding: 0 20px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+  <a class="bili" href="https://space.bilibili.com/404732186" target="_blank" rel="noopener noreferrer">B站主页</a>
+
+  <main>
+    <h1>星尘战棋</h1>
+    <p class="sub">JOJO 同人战棋 · 网页版</p>
+    <a class="launch" href="jojo/" target="_blank" rel="noopener noreferrer">启动星尘战棋</a>
+    <p class="hint">电脑、手机都能玩<br>首次进入先点一下画面，背景音乐才会响</p>
+  </main>
+
+  <footer>非官方同人作品 · 角色与世界观版权归原作者及版权方所有</footer>
+
+</body>
+</html>
