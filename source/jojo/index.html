@@ -1387,6 +1387,13 @@ const isBoss = key => !!FIGHTERS[key]?.boss;
  *
  * `swaps` 是「剧情模式下这名角色的改动」：`skills` 整体替换他的技能表，
  * `rage` 是"受到重创后觉醒"的永久加成，字段见 game.js 的 storyRage/storyAttack。
+ *
+ * ★★ 2026-10-04 用户要求：**主角是承太郎的每一章，`rage.name` 一律写「星尘的怒火」**——
+ *   不许再逐章各起一个名字（第一、七章本来就是它，第二/四/五章原来的「预判」「等待」「破口」
+ *   已经统一过来）。所以界面上承太郎的觉醒标签永远是
+ *   「星尘的怒火 · 半血后觉醒」→觉醒后「星尘的怒火 · 攻击 +3 · 每回合 +1 AP」。
+ *   ⚠️ 只有**名字**统一：`hpRatio` / `atk` / `ap` 每章各是各的原值，一个字都不许顺手动。
+ *   这一条由 `tests/jotaro-rage-name.test.js` 逐章遍历钉着。
  */
 const STORY_CHAPTERS = [
   {
@@ -1433,10 +1440,12 @@ const STORY_CHAPTERS = [
     ],
     swaps: {
       jotaro: {
-        // 这一战仍然没有时停（他在这一战里靠的是"预判"，不是停时间）
+        // 这一战仍然没有时停（他在这一战里靠的是预判对手的路线，不是停时间）
         skills: ['ora', 'star'],
         rage: {
-          hpRatio: 0.5, atk: 3, ap: 1, name: '预判',
+          // ★ 2026-10-04 用户要求：**承太郎的觉醒名全章统一**成「星尘的怒火」（这一章原来叫「预判」）。
+          //   只有名字换了，数值与 desc 一个字都没动。
+          hpRatio: 0.5, atk: 3, ap: 1, name: '星尘的怒火',
           desc: '共享生命降到一半以下后永久获得：攻击力 +3、每个己方回合 +1 行动点。盯住它必经的位置，等它自己撞上来。',
         },
       },
@@ -1491,7 +1500,8 @@ const STORY_CHAPTERS = [
         // 这一战他还没有时停（原作里那要到最后对 DIO 才觉醒）
         skills: ['ora', 'star'],
         rage: {
-          hpRatio: 0.5, atk: 3, ap: 1, name: '等待',
+          // ★ 2026-10-04 用户要求：觉醒名全章统一成「星尘的怒火」（这一章原来叫「等待」）
+          hpRatio: 0.5, atk: 3, ap: 1, name: '星尘的怒火',
           desc: '共享生命降到一半以下后永久获得：攻击力 +3、每个己方回合 +1 行动点。水里没有他熟悉的规则，他能做的只有盯住对方必须靠近的那一刻。',
         },
       },
@@ -1521,8 +1531,10 @@ const STORY_CHAPTERS = [
         // 这一战他还没有时停（原作里那要到最后对 DIO 才觉醒）
         skills: ['ora', 'star'],
         rage: {
-          hpRatio: 0.5, atk: 3, ap: 1, name: '破口',
-          desc: '共享生命降到一半以下后永久获得：攻击力 +3、每个己方回合 +1 行动点。再大的替身也是物质——先找破口，再谈出手。',
+          // ★ 2026-10-04 用户要求：觉醒名全章统一成「星尘的怒火」（这一章原来叫「破口」）。
+          //   desc 里那句"先找破口"原本是照着旧名字写的，跟着把那个词换掉（意思不变）。
+          hpRatio: 0.5, atk: 3, ap: 1, name: '星尘的怒火',
+          desc: '共享生命降到一半以下后永久获得：攻击力 +3、每个己方回合 +1 行动点。再大的替身也是物质——先找到它的薄弱处，再谈出手。',
         },
       },
     },
@@ -7081,6 +7093,10 @@ __mods["src/ui/skip.js"] = (function(){
  *   · **键盘一个键都不抢**（Space 仍然是结束回合）——这里只有点击，没有按键；
  *   · 结算弹窗、认输/重开那种确认框、剧情阅读页里要玩家做选择的地方**一律不跳**
  *     （它们是 `dialog`／不在战斗界面，见 skipGate）。
+ *
+ * ★★ 2026-10-04 用户要求②（在文件末尾）：**剧情正文页上点空白处＝点那一页的「继续」**。
+ *   那是**另一条独立闸门** `skipStoryBlank`（战斗这一套 `skipGate` / `createSkipper` 一个字都没改），
+ *   原因见下面那个函数自己的注释。
  */
 
 /**
@@ -7147,7 +7163,35 @@ function createSkipper(channels = {}, order = SKIP_ORDER) {
   };
 }
 
-return {SKIP_OWNED, SKIP_ORDER, isBlankClick, skipGate, createSkipper};
+/**
+ * ★★ 2026-10-04 用户要求②：**剧情正文页上点空白处＝点那一页的「继续」**。
+ *
+ * 由来：上面那套 `skipGate` 只在**战斗界面**生效（判定里要求"正在战斗"），
+ * 所以剧情模式读小说那几页点空白**没反应**（用户实测）。
+ *
+ * ⚠️⚠️ 三条硬边界（都是用户原话"一点都不能被影响"）：
+ *   ① **不是战斗那三条通道的替代品**：战斗里的跳过仍然只走 `skipGate` + `skipPresentation`，
+ *      这一条是**另一条独立的闸门**，两边互不干扰（`skipGate` 一个字都没动）；
+ *   ② **只认剧情正文页**：`#storyStage` 没在台面上（标题页 / 章节列表 / 选人页 / 战斗界面 /
+ *      结算页）一律判否——所以结算弹窗、确认框照旧不能被跳过；
+ *   ③ **有主的点击一律不算空白**（`isBlankClick` + SKIP_OWNED）：继续 / 返回标题这些**按钮**
+ *      照旧走它们自己的分支；`dialog` 也照旧——`modalOpen` 与 SKIP_OWNED 各守一半。
+ *      剧情正文页现在**没有**需要玩家做选择的页；将来若有，请给那个节点带上 SKIP_OWNED 里的
+ *      标记（或加进那个清单），**绝不能让"点空白"替玩家做选择**。
+ *
+ * 分派：判定通过就调一次 `advance`——它必须是**那一页「继续」按钮同一个函数**
+ * （main.js 里按钮的 onclick 与这一条共用 `storyAdvance`），这样两条路的行为逐值一致：
+ * 推进下一幕 / 开打 / 完成本章，连音效都一样。`advance` 没给时判否（宁可不跳，也别猜）。
+ */
+function skipStoryBlank({ stageHidden = true, modalOpen = false, target = null, root = null, advance = null } = {}) {
+  if (stageHidden || modalOpen) return false;
+  if (!isBlankClick(target, root)) return false;
+  if (typeof advance !== 'function') return false;
+  advance();
+  return true;
+}
+
+return {SKIP_OWNED, SKIP_ORDER, isBlankClick, skipGate, createSkipper, skipStoryBlank};
 })();
 
 // ===== src/ui/audio.js =====
@@ -7691,7 +7735,8 @@ const {icon} = __mods["src/ui/icons.js"];
 const {cutin, portrait, CHARACTER_ART} = __mods["src/ui/assets.js"];
 const {storyHtml, storyPageState, storySceneAt, storyBattleScene, storyRoadmap} = __mods["src/ui/story.js"];
 // ★ 2026-10-03 用户要求①：点空白处跳过演出（判定与顺序都是纯函数，见 ui/skip.js）
-const {createSkipper, skipGate} = __mods["src/ui/skip.js"];
+// ★ 2026-10-04 用户要求②：剧情正文页上**点空白处＝点那一页的「继续」**（同一个文件里的 skipStoryBlank）
+const {createSkipper, skipGate, skipStoryBlank} = __mods["src/ui/skip.js"];
 const audio = __mods["src/ui/audio.js"];
 const bgm = __mods["src/ui/bgm.js"];
 
@@ -7981,6 +8026,33 @@ function startStoryMatch() {
   const lineup = storyLineup();
   draft.p1 = lineup.player; draft.p2 = lineup.enemy; draft.mode = 'ai'; draft.story = chapter.id;
   startMatch();
+}
+/**
+ * ★★ 2026-10-04 用户要求②：剧情正文页的「继续」（`#storyStageNext`）**与"点空白处"共用这一个函数**。
+ *
+ * 用户实测："剧情模式的正文阅读页点空白没反应"——因为跳过那套判定当时只认战斗界面。
+ * 现在两条路都走这里，所以**点空白处与点按钮的效果逐值一致**：
+ *   · `action === 'battle'` → 先把光标挪到那一场战斗上，再开打（口径见 startStoryMatch 的注释）；
+ *   · `action === 'next'`   → 推进到下一幕（翻页）；
+ *   · 其它（本章最后一页）  → 记通关 + 回章节列表。
+ *
+ * ⚠️ 剧情正文页现在**没有**"需要玩家做选择"的页；将来若有，那一步必须带走自己的按钮，
+ *    **绝不能让"点空白处"替玩家做选择**（见 ui/skip.js 的 skipStoryBlank 注释）。
+ * ⚠️ 音效也一起放在这里：按钮与空白点击听起来也是一样的（这正是用户要的"完全一致"）。
+ */
+function storyAdvance() {
+  const chapter = STORY_CHAPTERS[storyRead.chapter];
+  play('sfxClick');
+  if (!chapter || !storyView) return showStoryMenu();
+  if (storyView.button.action === 'battle') {
+    // ★ 先把光标挪到**那一场战斗**上再开打：一章两场时 `startStoryMatch()` 要靠它算出
+    //   "打完接着演哪一幕"（`storyView.nextIndex` 就是下一幕＝那一场）。
+    if (storyView.nextIndex >= 0) storyRead.scene = storyView.nextIndex;
+    startStoryMatch();
+  }
+  else if (storyView.button.action === 'next') showStoryStage(storyRead.chapter, storyView.nextIndex);
+  // 读完本章最后一页 = 通关 = 解锁：记下来，然后回到章节列表让玩家看到「已解锁」
+  else { markStoryCleared(chapter.id); showStoryMenu(); }
 }
 function startMatch() {
   closeDialogs(); clearPresentation();
@@ -8527,6 +8599,19 @@ function bindEvents() {
       target: event.target,
       root: $('app'),
     })) skipPresentation();
+    // ★★ 2026-10-04 用户要求②：**剧情正文页**（读小说那几页）上点空白处＝点那一页的「继续」。
+    //   ⚠️ 这是**另一条独立闸门**，与上面战斗那条互不干扰（`skipGate` 一个字都没改）：
+    //      · 只有 `#storyStage` 在台面上才可能生效——标题页 / 章节列表 / 选人页 / 战斗 / 结算页全判否；
+    //      · 点在按钮、对话框、卡片上时 `isBlankClick` 判否 → 继续走下面**原样未动**的按钮分派；
+    //      · 有弹窗开着（`modalOpen()`）一律不跳，所以结算弹窗与确认框照旧只能点按钮。
+    //   ⚠️ 调的是 `storyAdvance`——**与 `#storyStageNext` 的 onclick 是同一个函数**，行为逐值一致。
+    skipStoryBlank({
+      stageHidden: $('storyStage')?.hidden !== false,
+      modalOpen: modalOpen(),
+      target: event.target,
+      root: $('storyStage'),
+      advance: storyAdvance,
+    });
     const button = event.target.closest('button');
     if (!button) return;
     if (button.hasAttribute('data-help')) { showDialog('helpDialog'); play('sfxClick'); }
@@ -8583,20 +8668,7 @@ function bindEvents() {
   const storyMenuBack = $('storyMenuBack');
   if (storyMenuBack) storyMenuBack.onclick = () => { closeDialogs(); play('sfxClick'); showTitle(); };
   const storyNext = $('storyStageNext');
-  if (storyNext) storyNext.onclick = () => {
-    const chapter = STORY_CHAPTERS[storyRead.chapter];
-    play('sfxClick');
-    if (!chapter || !storyView) return showStoryMenu();
-    if (storyView.button.action === 'battle') {
-      // ★ 先把光标挪到**那一场战斗**上再开打：一章两场时 `startStoryMatch()` 要靠它算出
-      //   "打完接着演哪一幕"（`storyView.nextIndex` 就是下一幕＝那一场）。
-      if (storyView.nextIndex >= 0) storyRead.scene = storyView.nextIndex;
-      startStoryMatch();
-    }
-    else if (storyView.button.action === 'next') showStoryStage(storyRead.chapter, storyView.nextIndex);
-    // 读完本章最后一页 = 通关 = 解锁：记下来，然后回到章节列表让玩家看到「已解锁」
-    else { markStoryCleared(chapter.id); showStoryMenu(); }
-  };
+  if (storyNext) storyNext.onclick = storyAdvance;
   $('btnEnd').onclick = requestEndTurn;
   $('cancelBtn').onclick = () => { if (humanTurn() && !busy()) game.cancel(); inspecting = null; };
   $('menuBtn').onclick = () => {
