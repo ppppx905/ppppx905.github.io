@@ -168,6 +168,9 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
 .legend-move { color: var(--move); font-size: 9px; }
 .legend-attack { width: 12px; height: 12px; border: 1px solid #da8e97; background: repeating-linear-gradient(135deg, transparent 0 2px, #de809975 3px 4px); }
 .legend-target { color: var(--p2); font-size: 17px; line-height: 1; }
+/* ★ 可拾取道具（2026-10-05 用户拍板）：盘面上每种道具各有各的颜色（见 render.js 的 drawItem），
+   图例只负责说明"这一类东西能捡走"，所以这里用一个中性的暖色方块，不跟任何一种道具绑死。 */
+.legend-item { color: #e2704a; font-size: 13px; line-height: 1; }
 .legend-link { color: var(--gold); font-size: 22px; line-height: .5; }
 .board-legend .text-btn { margin-left: auto; font-size: 10px; }
 #turnBanner { position: absolute; top: 42%; left: 50%; translate: -50% -50%; background: #16111ef2; border-block: 1px solid var(--gold); padding: 12px 40px; color: var(--gold-hi); pointer-events: none; opacity: 0; font-family: var(--font-display); font-size: 28px; white-space: nowrap; z-index: 7; }
@@ -796,7 +799,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
   <section id="lobby" class="lobby" hidden aria-label="选择对战角色">
     <header class="lobby-top"><button class="btn quiet" id="backToTitle"><span>◂</span> 返回标题</button><span class="chapter-label" id="lobbyLabel">选择双方角色</span><button class="btn quiet" data-story>剧情档案 <span>▸</span></button><button class="btn quiet" data-help>玩法指南 <span>?</span></button></header>
     <div class="draft-board"><section class="draft-side p1" id="draftP1" aria-label="P1 选择角色"></section><div class="draft-vs" aria-hidden="true"><span>VS</span><i></i><small>STAND<br>BY ME</small></div><section class="draft-side p2" id="draftP2" aria-label="P2 选择角色"></section></div>
-    <div class="lobby-bottom"><div class="team-pick" role="group" aria-label="对战人数"><span>对战人数</span><button type="button" class="team-mode" id="teamSize1" data-team-size="1v1" aria-pressed="true">1v1</button><button type="button" class="team-mode" id="teamSize2" data-team-size="2v2" aria-pressed="false" title="每方两个角色，共 8 枚棋子（交替出手）">2v2</button></div><div id="draftOrder" class="draft-order" aria-live="polite" hidden></div><span id="draftHint">选择双方角色，准备开始对战。</span><button class="btn gold deploy" id="startBtn">进入战场 <span>↗</span></button><small id="buildTag">本地对局 · 无需账号</small></div>
+    <div class="lobby-bottom"><div class="team-pick" role="group" aria-label="对战人数"><span>对战人数</span><button type="button" class="team-mode" id="teamSize1" data-team-size="1v1" aria-pressed="true">1v1</button><button type="button" class="team-mode" id="teamSize2" data-team-size="2v2" aria-pressed="false" title="每方两个角色，共 8 枚棋子（交替出手）">2v2</button></div><div class="team-pick" id="mapPick" role="group" aria-label="地图"></div><div id="draftOrder" class="draft-order" aria-live="polite" hidden></div><span id="draftHint">选择双方角色，准备开始对战。</span><small id="mapNote"></small><button class="btn gold deploy" id="startBtn">进入战场 <span>↗</span></button><small id="buildTag">本地对局 · 无需账号</small></div>
     <p id="artWarning" class="art-warning" role="status" hidden></p>
   </section>
 
@@ -807,8 +810,8 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
       <aside class="fighter-bay p1" id="sideP1" aria-label="P1 角色与实时状态"></aside>
       <section id="center" class="board-stage" aria-label="战场">
         <div class="board-head"><span class="eyebrow">CAIRO · 黄昏遗迹</span><span class="board-pan-hint">滑动查看战场</span><span class="round-label" id="roundLabel">ROUND <b>01</b></span></div>
-        <div id="boardWell"><canvas id="board" tabindex="0" role="application" aria-label="战场棋盘，14列11行。方向键移动光标，Enter选择或行动，Escape取消。" aria-describedby="boardReadout">当前浏览器不支持 Canvas，请使用现代浏览器。</canvas><div id="turnBanner" aria-hidden="true"></div><div id="stageBanner" role="status" aria-live="polite"></div><div id="bark" role="status" aria-live="polite" hidden></div><div id="cutin" aria-hidden="true" hidden></div></div>
-        <div class="board-legend" aria-label="棋盘图例"><span class="skip-hint" title="点棋盘以外的空白处，跳过正在播的台词、提示或大字横幅。键盘不受影响。">点空白处跳过演出</span><span><i class="legend-move">▲</i> 可移动</span><span><i class="legend-attack"></i> 攻击范围</span><span><i class="legend-target"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v5m0 12v5M1 12h5m12 0h5" stroke="currentColor" stroke-width="2"/></svg></i> 可攻击</span><span><i class="legend-link">⋯</i> 同伴连携</span><button id="cancelBtn" class="text-btn">取消 <kbd>Esc</kbd></button></div>
+        <div id="boardWell"><canvas id="board" tabindex="0" role="application" aria-label="战场棋盘，18列13行。方向键移动光标，Enter选择或行动，Escape取消。" aria-describedby="boardReadout">当前浏览器不支持 Canvas，请使用现代浏览器。</canvas><div id="turnBanner" aria-hidden="true"></div><div id="stageBanner" role="status" aria-live="polite"></div><div id="bark" role="status" aria-live="polite" hidden></div><div id="cutin" aria-hidden="true" hidden></div></div>
+        <div class="board-legend" aria-label="棋盘图例"><span class="skip-hint" title="点棋盘以外的空白处，跳过正在播的台词、提示或大字横幅。键盘不受影响。">点空白处跳过演出</span><span><i class="legend-move">▲</i> 可移动</span><span><i class="legend-attack"></i> 攻击范围</span><span><i class="legend-target"><svg width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v5m0 12v5M1 12h5m12 0h5" stroke="currentColor" stroke-width="2"/></svg></i> 可攻击</span><span><i class="legend-item">◆</i> 道具 · 走上去就捡走</span><span><i class="legend-link">⋯</i> 同伴连携</span><button id="cancelBtn" class="text-btn">取消 <kbd>Esc</kbd></button></div>
         <p id="boardReadout" class="sr-only" role="status"></p>
       </section>
       <aside class="fighter-bay p2" id="sideP2" aria-label="P2 角色与实时状态"></aside>
@@ -822,7 +825,7 @@ body.reduce-motion *, body.reduce-motion *::before, body.reduce-motion *::after 
     <footer class="battle-footer"><div class="log-panel" id="logPanel"><div class="log-panel-top"><button class="text-btn" id="logBtn" aria-expanded="false">战斗记录 <span>▾</span></button><span class="log-panel-hint">全部流程 · 点标题展开</span><button class="text-btn" id="logFullBtn">全屏 ↗</button></div><div id="fullLogInline" class="log-scroll" role="log" tabindex="0" aria-label="战斗记录（全部流程）"></div></div><span class="footer-brand">STAND TOGETHER.</span></footer>
   </main>
 
-  <dialog id="helpDialog" class="dialog wide" aria-labelledby="helpTitle"><div class="dialog-top"><span class="eyebrow">FIELD MANUAL</span><button class="icon-btn" data-close aria-label="关闭玩法指南">×</button></div><h2 id="helpTitle">战场手册</h2><p class="dialog-lead">选择使者或替身 → 查看落点和目标 → 行动 → 结束回合。</p><div class="help-grid"><article><b>01 / 行动与连携</b><p>每回合 3 AP（部分技能会额外增加）。一次移动或普攻消耗 1 AP；移动步数见单位卡。使者无法普攻，个别技能例外。替身与使者共享 HP，任一单位受伤都会扣除共享生命。</p><p>落点必须在同伴 2 格内（个别角色更远）。路径中的岩石、单位与宝石柱不可穿越。</p><p>「对战」里可以开「2v2」：每方两个角色、各自一条血、各自每回合 3 AP，棋子共 8 枚；出手顺序是 P1 第一个角色 → P2 第一个角色 → P1 第二个角色 → P2 第二个角色，一方两个角色都倒下才判负。</p><p>每个角色位都能单独设成<b>真人</b>或<b>人机</b>（选人页每一位上方那颗开关）：电脑位会自己行动、不用你点，真人位等你的操作；四个位子全设人机就是观战，两边自己打完。电脑位也由你替它选角色。</p></article><article><b>02 / 战术地形</b><p>岩石阻挡移动，相邻单位 +1 防御；草丛 +3 防御，进入后下个对手回合结束时消失。恢复点 +10 HP，满血时保留；毒沼在落点结算 −3 HP。</p><p>敌方火焰在经过时造成 3 伤害并叠灼烧，每次移动只结算一次。己方火焰安全。</p></article><article><b>03 / 技能与状态</b><p>技能按钮固定显示名称、消耗与冷却。瞄准可取消且不扣 AP；火焰首格落地后扣除消耗，已铺火焰不能撤销。最多连续铺 3 格，可提前完成。</p><p>灼烧最多 2 层，每层在己方回合结束扣 1 HP，治疗减半并向上取整。宝石柱会挡路，并给紧贴的己方 +1 防御、给该方替身 +1 伤害，只要有柱子存在，该方在自己的回合开始时回复 1 HP（不叠加）；柱子被打碎只损失它本身，不会让任何一方掉血。</p></article><article><b>04 / 时间停止</b><p>每局一次，由替身释放、不消耗行动点：发动后自动跳过对方下个行动回合，冷却与回合结束状态照常结算。个别角色的发动条件不同，技能说明里会写。</p></article></div><div class="key-guide"><span><kbd>1</kbd> 使者</span><span><kbd>2</kbd> 替身</span><span><kbd>Q W E</kbd> 技能</span><span><kbd>↑ ↓ ← →</kbd> 棋盘光标</span><span><kbd>Enter</kbd> 落子</span><span><kbd>Esc</kbd> 取消瞄准</span><span><kbd>Space</kbd> 结束回合</span></div><button class="btn gold" data-close>准备好了</button></dialog>
+  <dialog id="helpDialog" class="dialog wide" aria-labelledby="helpTitle"><div class="dialog-top"><span class="eyebrow">FIELD MANUAL</span><button class="icon-btn" data-close aria-label="关闭玩法指南">×</button></div><h2 id="helpTitle">战场手册</h2><p class="dialog-lead">选择使者或替身 → 查看落点和目标 → 行动 → 结束回合。</p><div class="help-grid"><article><b>01 / 行动与连携</b><p>每回合 3 AP（部分技能会额外增加）。一次移动或普攻消耗 1 AP；移动步数见单位卡。使者无法普攻，个别技能例外。替身与使者共享 HP，任一单位受伤都会扣除共享生命。</p><p>落点必须在同伴 2 格内（个别角色更远）。路径中的岩石、单位与宝石柱不可穿越。</p><p>「对战」里可以开「2v2」：每方两个角色、各自一条血、各自每回合 3 AP，棋子共 8 枚；出手顺序是 P1 第一个角色 → P2 第一个角色 → P1 第二个角色 → P2 第二个角色，一方两个角色都倒下才判负。</p><p>每个角色位都能单独设成<b>真人</b>或<b>人机</b>（选人页每一位上方那颗开关）：电脑位会自己行动、不用你点，真人位等你的操作；四个位子全设人机就是观战，两边自己打完。电脑位也由你替它选角色。</p></article><article><b>02 / 战术地形</b><p>岩石阻挡移动，相邻单位 +1 防御；草丛 +3 防御，进入后下个对手回合结束时消失。恢复点 +10 HP，满血时保留；毒沼在落点结算 −3 HP。</p><p>敌方火焰在经过时造成 3 伤害并叠灼烧，每次移动只结算一次。己方火焰安全。</p><p><b>可拾取道具</b>（菱形小图标，五种颜色各一种）：<b>任何棋子走上去就自动捡走</b>，没有额外消耗。开局场上摆 2 个，之后每 3 个回合在空地再刷 1 个，场上最多同时存在 4 个。力量＝攻击 +2、护盾＝防御 +1、疾风＝移动 +1、连携＝连携距离 +1（这四种本局永久，按角色记账，本体与替身一起吃到）；时间＝当场 +1 行动点。没有替身棋子的角色捡到连携会改成移动 +1。加成会以「力量 · 攻击 +2」这样的标签显示在角色状态栏里。</p></article><article><b>03 / 技能与状态</b><p>技能按钮固定显示名称、消耗与冷却。瞄准可取消且不扣 AP；火焰首格落地后扣除消耗，已铺火焰不能撤销。最多连续铺 3 格，可提前完成。</p><p>灼烧最多 2 层，每层在己方回合结束扣 1 HP，治疗减半并向上取整。宝石柱会挡路，并给紧贴的己方 +1 防御、给该方替身 +1 伤害，只要有柱子存在，该方在自己的回合开始时回复 1 HP（不叠加）；柱子被打碎只损失它本身，不会让任何一方掉血。</p></article><article><b>04 / 时间停止</b><p>每局一次，由替身释放、不消耗行动点：发动后自动跳过对方下个行动回合，冷却与回合结束状态照常结算。个别角色的发动条件不同，技能说明里会写。</p></article></div><div class="key-guide"><span><kbd>1</kbd> 使者</span><span><kbd>2</kbd> 替身</span><span><kbd>Q W E</kbd> 技能</span><span><kbd>↑ ↓ ← →</kbd> 棋盘光标</span><span><kbd>Enter</kbd> 落子</span><span><kbd>Esc</kbd> 取消瞄准</span><span><kbd>Space</kbd> 结束回合</span></div><button class="btn gold" data-close>准备好了</button></dialog>
 
   <dialog id="storyDialog" class="dialog wide" aria-labelledby="storyTitle"><div class="dialog-top"><span class="eyebrow">STORY ARCHIVE</span><button class="icon-btn" data-close aria-label="关闭剧情档案">×</button></div><h2 id="storyTitle">星尘斗士 · 剧情档案</h2><div id="storyBody"></div><button class="btn gold" data-close>合上档案</button></dialog>
 
@@ -843,12 +846,22 @@ const __mods = {};
 __mods["src/core/hex.js"] = (function(){
 /**
  * 尖顶六边形的唯一几何来源，供规则、绘制和指针共用。
- * 与旧版布局完全一致：COLS=14 ROWS=11 R=33 PAD=24，保证玩法不变。
+ *
+ * ★★ 2026-10-05 用户拍板：**棋盘从 14×11 放大到 18×13**（154 格 → 234 格）。
+ *   这是一次**纯尺寸**改动：格子几何（`R` / `HX` / `VY` / `PAD`）一个数都没动，
+ *   所以每格的观感、地形贴图、棋子立绘的比例全都与改动前逐值相同——变的只有**有多少格**。
+ *   ⚠️ 连带口径（改动前先看这三条）：
+ *     ① 逻辑画布 `CANVAS_W`／`CANVAS_H` 由 COLS/ROWS **算出来**，所以它们会自动变大
+ *        （877×643 → 1106×742）；`layout.js` 会把画布缩放到容器里，于是**屏幕上的格子变小约 13%~21%**。
+ *        格内那几个字号（名字／状态小标／血条）按这个比例在 `render.js` 里做了补偿，别照抄旧值。
+ *     ② 凡是「棋盘中心 / 角落 / 镜像列 / 不贴边」的判据一律**按 COLS/ROWS 算**，不许写死；
+ *        摆位表在 `game.js` 的 `DEPLOY`，场景判据在 `rules.js` 的 `SEA_DECK` / `STRENGTH` / `MIRRORS`。
+ *     ③ 一张 18 列的棋盘上，镜像列 ＝ `COLS - 1 - 列`（**17 − 列**）。
  */
 const SQ3 = Math.sqrt(3);
 
-const COLS = 14;
-const ROWS = 11;
+const COLS = 18;
+const ROWS = 13;
 const R = 33;
 const PAD = 24;
 const HX = SQ3 * R;      // 列间距 ≈ 57.16
@@ -859,6 +872,18 @@ const BOARD_W = Math.ceil(PAD * 2 + COLS * HX + HX / 2);
 const BOARD_H = Math.ceil(PAD * 2 + R * 2 + (ROWS - 1) * VY);
 const CANVAS_W = BOARD_W;
 const CANVAS_H = BOARD_H + LABEL * 2;
+
+/**
+ * 左右镜像列：P1 的列 → P2 的列（关于棋盘中心镜像）。
+ * ⚠️ **唯一口径**——摆位（game.js 的 `deploySpot`）、场景数据（rules.js）都调它，
+ *    别在任何地方手写 `COLS - 1 - 列`（18 列时是 17 − 列，14 列时代是 13 − 列，写死了就会随尺寸失配）。
+ */
+const mirrorCol = col => COLS - 1 - col;
+/**
+ * 棋盘**正中的那一行**（13 行 → 6；旧 11 行时是 5）：开局摆位行、
+ * 「从棋盘中央登场」这类判据都用它，别写死行号。
+ */
+const MID_ROW = (ROWS - 1) >> 1;
 
 /** 生成全部格子。q/r 为轴向坐标，cx/cy 为画布像素中心（已含 LABEL 偏移）。 */
 function makeTiles() {
@@ -1018,7 +1043,7 @@ function drawSlab(ctx, t, radius = R - 1) {
   ctx.stroke();
 }
 
-/** 边缘坐标：列 A–N、行 1–11。专业感性价比最高的一笔。 */
+/** 边缘坐标：列 A–R（18 列）、行 1–13。专业感性价比最高的一笔。 */
 function drawLabels(ctx, tiles) {
   ctx.save();
   ctx.fillStyle = "#c1ad8b";
@@ -1104,12 +1129,16 @@ function drawTargetRing(ctx, t, time) {
   ctx.restore();
 }
 
-return {COLS, ROWS, R, PAD, HX, VY, LABEL, BOARD_W, BOARD_H, CANVAS_W, CANVAS_H, makeTiles, buildIndex, hexDist, neighbors, hexPath, containsPoint, clientPoint, tileKey, tileLabel, tileAt, drawSlab, drawLabels, drawMoveHint, drawAttackZone, drawSelected, drawTargetRing};
+return {COLS, ROWS, R, PAD, HX, VY, LABEL, BOARD_W, BOARD_H, CANVAS_W, CANVAS_H, mirrorCol, MID_ROW, makeTiles, buildIndex, hexDist, neighbors, hexPath, containsPoint, clientPoint, tileKey, tileLabel, tileAt, drawSlab, drawLabels, drawMoveHint, drawAttackZone, drawSelected, drawTargetRing};
 })();
 
 // ===== src/core/rules.js =====
 __mods["src/core/rules.js"] = (function(){
 /** Gameplay data from the original game; rendering has its own asset registry. */
+// ★ 棋盘尺寸（列/行/镜像列/正中行）的唯一来源：凡是"中央 / 角落 / 镜像"的判据都从这里算，
+//   绝不在数据里写死旧尺寸（2026-10-05 棋盘 14×11 → 18×13 时定的口径）。
+const {COLS, ROWS, mirrorCol, MID_ROW} = __mods["src/core/hex.js"];
+
 // ★ 2026-09-30 用户要求「阿布德尔灼烧层数改为 2」：`burnMax` 3 → **2**。
 //   ⚠️ 灼烧只有阿布德尔的被动这一个来源，所以这个全局常量就等于"他的灼烧上限"；
 //     改它记得**同步 index.html 里玩法指南那句"灼烧最多 3 层"**（那是写给玩家看的规则文本）。
@@ -1118,11 +1147,240 @@ const RULE = { apPerTurn:3, moveCost:1, attackCost:1, distLimit:2, standDefBonus
   waterMovePenalty:1 };
 
 /**
- * 海面场地（`arena:'sea'`）的甲板范围：棋盘中央一块 **4×5** 的甲板——可站、移动照常；其余格子都是水。
- * ⚠️ 水只影响**玩家方（p1）**：暗蓝之月是水生替身，在水里不受影响（用户 2026-09-15 确定）。
- * ⚠️ 减速的判定时机是「**开始移动时在水中**」——起点在甲板上就不减，哪怕这一趟走进水里。
+ * ★★ 2026-10-05 用户拍板：**可拾取的道具**（地形交互的第二层）——用户原话
+ *    「在地形交互上多增加一点道具，例如提升数值的道具」。
+ *
+ * 一套口径（数值全部由用户拍板，**不许改**）：
+ *   · **走上去就捡走**：任何棋子（本体或替身）踩到道具格立刻生效、格子清空、写进战斗记录；
+ *   · **加成按角色槽位记账**（与项目既有的"按 `slot` 记账"一致）：一个角色捡到，他的本体与替身
+ *     一起吃到——不是全局、也不是按队；
+ *   · **出场**：开局摆 `ITEM_RULE.opening` 个；之后每 `everyTurns` 个回合在空地补 1 个；
+ *     场上最多同时存在 `max` 个（满了就不再刷）。
+ *
+ * ⚠️⚠️ **单一位置口径**：每一种道具"加什么、加多少"只写在这张表的 `buff` / `stat` / `amount` 上——
+ *    `game.js` 的 `pickItem()`、界面标签、格子说明、AI 的估价全从这几个字段推出来，
+ *    **别在别处再写一遍"力量 +2"**（那样改数值时会漏掉某一边）。
+ *
+ * ⚠️ 特殊口径（用户点名）：**「连携」对没有替身棋子的角色（`stand: null`）无效**——
+ *    这些人捡到它时**改成"移动 +1"**（否则等于白捡）。判据是**数据**（`FIGHTERS.x.stand` 在不在），
+ *    **绝不按角色名硬编码**；所以下面写成 `soloFallback: 'swift'`（退回"疾风"那一档的效果）。
+ *
+ * 字段：
+ *   · `name`/`glyph`/`color`  棋盘小图标上的字与颜色（五种颜色各不相同，见 render.js 的 drawItem）；
+ *   · `buff`  加在哪本账上：`atk` / `def` / `move` / `dist`（按槽位的永久加成表）
+ *             或 `ap`（**当场**给行动点，不进加成表）；
+ *   · `stat`/`amount`/`duration`  文案与数值的唯一来源（状态标签与格子说明都从它们拼）；
+ *   · `grab`  **AI 走位评分**里这件东西值多少分（见 ai.js；只在"顺路"时才会加，不会为它改道送死）。
  */
-const SEA_DECK = { colStart: 5, colEnd: 8, rowStart: 3, rowEnd: 7 };
+const ITEM_TYPES = {
+  // 力量：攻击 +2（本局永久）
+  power: { name: '力量', glyph: '力', color: '#e2704a', buff: 'atk', stat: '攻击', amount: 2, duration: '本局永久', grab: 6 },
+  // 护盾：防御 +1（本局永久）——进 baseDefense，于是草丛/岩石/柱子那些照旧叠加
+  shield: { name: '护盾', glyph: '盾', color: '#4f9bd8', buff: 'def', stat: '防御', amount: 1, duration: '本局永久', grab: 5 },
+  // 疾风：移动 +1（本局永久）——进 moveRange，水域 −1 之类的惩罚照旧照算
+  swift: { name: '疾风', glyph: '风', color: '#57c08a', buff: 'move', stat: '移动', amount: 1, duration: '本局永久', grab: 4 },
+  // 时间：立刻 +1 行动点（一次性）——**不进加成表**，身上没有可常驻的加成
+  // ⚠️ 键名叫 `clock` 而不是 `time`：`SKILLS.time` 是 DIO 的「时间停止」，两张表共用一个键名
+  //    读起来会混（而且下面那条"道具不是技能"的判据也就废了）。名字（时间）与效果照用户拍板的不动。
+  clock: { name: '时间', glyph: '时', color: '#d8b44a', buff: 'ap', stat: '行动点', amount: 1, duration: '当场生效', grab: 5 },
+  // 连携：连携距离 +1（本局永久）；没有替身棋子的角色**改成移动 +1**（见上面那段口径）
+  bond: { name: '连携', glyph: '链', color: '#b07fe0', buff: 'dist', stat: '连携距离', amount: 1, duration: '本局永久',
+    grab: 4, soloFallback: 'swift' },
+};
+/**
+ * 道具的**默认出场规则**（`default` 与 `shallows` 用的是同一套，见下面的 MAPS）。
+ * 地图数据里可以整份覆盖，也可以只改其中一两个字段；**一行关掉**写 `items: null`。
+ *
+ *   · `opening`      开局摆几个（用户定：2）
+ *   · `everyTurns`   之后每几个**回合**（＝每个角色各交一次行动算 1 个回合，1v1 一轮 2 个）补 1 个（用户定：3）
+ *   · `max`          场上最多同时存在几个（用户定：4；满了就不再刷）
+ *   · `edge`         不贴边：离棋盘每条边至少几格
+ *   · `spawn`        开局离**双方出生点**至少 `spawn + 1` 格（别让谁一开局就白捡）
+ *   · `refreshClear` 刷新时离**场上任何棋子**至少 `refreshClear + 1` 格（别凭空送到谁脚下）
+ *   · `weights`      种类权重（随机取；全 0 或全是不认识的键 ＝ 一个都不刷，不会抛错）
+ *
+ * ⚠️ `edge` / `spawn` 这两个数**不能凭感觉调**：18×13 的棋盘上，
+ *    `edge:1, spawn:3`（＝离边至少 1 格、离出生点至少 4 格）在**每一种开局**下都还留得下几十个合法格
+ *    （1v1 约 72~97 个、**2v2 八枚棋子时仍有 60 个**）；而`edge:2, spawn:4` 在 2v2 里
+ *    会一个格子都挑不出来（八个出生点的半径 4 圆盘几乎铺满棋盘）——那样"开局摆 2 个"直接就落空了。
+ */
+const ITEM_RULE = {
+  opening: 2, everyTurns: 3, max: 4,
+  edge: 1, spawn: 3, refreshClear: 1,
+  weights: { power: 1, shield: 1, swift: 1, clock: 1, bond: 1 },
+};
+/**
+ * 把地图数据里的 `items` 收敛成一份**完整的规则**（认不出的键一律剔掉，**绝不抛错**）：
+ *   · `items: null` / `false` / `{ enabled: false }` → **这张图没有道具**（一行关掉）；
+ *   · 没写 `items` → 用默认那一套（与 `default` / `shallows` 相同）；
+ *   · 写了对象 → 逐字段覆盖默认值（`weights` 也一样，逐种类覆盖）。
+ * ⚠️ **唯一口径**：`game.js` 的 `Game.itemRule()` 调它，别在别处再解一遍。
+ */
+function resolveItemRule(map) {
+  const data = map?.items;
+  if (data === null || data === false) return null;
+  const raw = data && typeof data === 'object' ? data : {};
+  if (raw.enabled === false) return null;
+  const rule = { ...ITEM_RULE, ...raw };
+  // 种类权重：只认 ITEM_TYPES 里真的有的键，而且权重要是正数（"一个都不刷"是合法结果，不是错误）
+  rule.weights = Object.fromEntries(Object.entries({ ...ITEM_RULE.weights, ...(raw.weights || {}) })
+    .filter(([type, weight]) => ITEM_TYPES[type] && Number.isFinite(weight) && weight > 0));
+  return rule;
+}
+
+/**
+ * ★★ 2026-10-05 用户拍板：**地图（MAP）体系**——一张地图 ＝ **一套地形布局 ＋ 配套背景画**，
+ *    而且每张地图要能体现出自己的特点（打起来手感不一样）。棋盘尺寸仍然是 18×13（见 hex.js），
+ *    **地图只换布局与场地特性，不换棋盘大小**。
+ *
+ * 每张地图一项，字段：
+ *   · `id`      地图键（注册表的键，也是网址参数 `?map=` 与大厅按钮的值）；
+ *   · `name`    界面上给玩家看的名字；
+ *   · `arena`   **配套背景画**的素材键（见 ui/assets.js 的 `ARENAS`）；`null` ＝ 用默认深色底；
+ *   · `terrain` **各元素的撒法/数量**：`{ 元素: 基线数量 }`。基线是在 `TERRAIN_BASE_AREA`（154 格）上
+ *               定的，`game.js` 的 `generateTerrain()` 按当前棋盘面积等比放大——
+ *               所以这张表**不写"18×13 时的数量"**，棋盘再变也只改 hex.js 的 COLS/ROWS。
+ *               没列到的元素**一块都不撒**（不是"撒 0 个"，是这张地图压根没有它）；
+ *   · `features` **场地特性**：目前只有 `water`（水域＋中央木甲板），见下面 shallows 的注释。
+ *               `{}` ＝ 没有任何特性（普通陆战）；
+ *   · `items`   **可拾取道具**的出场规则（`ITEM_RULE` 的一份覆盖值，逐字段合并）：
+ *               `null` ＝ **这张图没有道具**（一行关掉）；没写 ＝ 用 `ITEM_RULE` 那套默认值
+ *               （两张地图现在都用默认那一套，所以"哪张图都能捡道具"）。
+ *
+ * ⚠️⚠️ **地图差异一律写在这份数据里**，判据只由 `game.js` 一处读（`Game.map()` / `mapId`）——
+ *    绝不在别处写 `if (地图 === 'shallows')` 那种分支（用户的硬要求）。
+ * ⚠️ 加地图只动这一份数据（＋ `arena` 指向的背景素材），别的文件一行都不用改。
+ */
+const DEFAULT_MAP_ID = 'default';
+const MAPS = {
+  /**
+   * `default`＝**沿用改动前那一套**（回归的底线）：
+   *   地形仍是"岩石 6 / 草丛 4 / 恢复点 2 / 毒沼 2 的基线 × 面积比"（18×13 时是 9 / 6 / 3 / 3），
+   *   背景仍是默认深色底（没有背景图），**没有任何场地特性**。
+   * ⚠️ 这一项在 2026-10-05 加地图体系时是**逐值搬运**：地形数量、撒法判据、随机数消耗顺序
+   *    一个字都没改，所以同一个随机种子下地形与改动前逐值相同（见 tests/maps.test.js ①）。
+   */
+  default: {
+    id: DEFAULT_MAP_ID,
+    name: '默认战场',
+    arena: null,
+    terrain: { rock: 6, bush: 4, heal: 2, hazard: 2 },
+    features: {},
+    // ★ 道具：用默认那一套（开局 2 个、每 3 回合补 1 个、上限 4）。想关掉就写 `items: null`。
+    items: ITEM_RULE,
+    blurb: '深色底 · 野外地形（岩石 / 草丛 / 恢复点 / 毒沼）：改动前一直用的那一套',
+  },
+  /**
+   * ★★ `shallows`「浅滩水路」——**大片水面 ＋ 画面正中横着一条全宽的木甲板**，配套背景 `sea`。
+   *
+   * 这张地图就是**第四章一直在用的那一套玩法**（2026-09-15 用户定的"海面场地"），
+   * 现在把它从"写死给第四章"提升成一张**可选地图**：同一套语义与同一套画面表现；
+   * ★★ 2026-10-05（本次改动）用户拍板把甲板改成"全宽一条带子"、并**不刷毒沼**，
+   * 第四章**跟着一起变**（它的 `map` 还是 `shallows`，拿到的是同一份新数据，
+   * 玩法/观感仍然"同一套"：水面铺满、水里起步玩家方 −1、甲板上照常）——
+   * 见 tests/maps.test.js ④（那一战的开局水陆分布也跟着变了）。
+   *
+   * `features.water` 的四个字段：
+   *   · `deck: { cols, rows }`＝甲板尺寸（**列 × 行**）。甲板**永远居中**（起止行列由
+   *     `deckRectOf()` 按 COLS/ROWS 算出来），所以"甲板在正中央"不会随棋盘尺寸失配；
+   *     ★★ 2026-10-05 用户拍板（本次改动）：甲板从"画面正中一小块 4×5"改成
+   *     **"横向一整条带子"——横跨左右全宽、厚度 3 行、垂直居中**：
+   *       `cols: COLS`（＝写"全宽"而不是写 18，棋盘再变也不会只剩中间一段）
+   *       `rows: 3`（奇数厚度才能关于正中那一行对称）
+   *     18×13 上 `(18−18)/2 = 0` → **第 0~17 列（全宽）**、`(13−3)/2 = 5` → **第 5~7 行**，
+   *     共 **18 × 3 = 54 格**；行 5~7 的正中就是 `MID_ROW`（第 6 行），与 `SEA_DECK` 完全一致。
+   *     ⚠️ 厚度必须是**奇数**，否则 `deckRectOf()` 的居中算式会算出半行；
+   *   · `movePenalty`＝**在水里起步时**移动 −1 的量（数值仍只有 `RULE.waterMovePenalty` 一个来源）；
+   *   · `slowedTeams`＝**只有这些队**吃这个 −1。这里只有 `p1`（玩家方）——
+   *     暗蓝之月是水生替身，在水里来去自如、不受影响（用户 2026-09-15 确定）；别的队一个数都不减；
+   *   · 判定时机是「**开始移动那一刻**」：起点在甲板上就不减，哪怕这一趟走进水里（既有口径，没动）。
+   *
+   * ⚠️ 地形数量比默认地图**少一点石头**（基线 4 而不是 6 → 18×13 上是 6 块）：这是一张
+   *    "开阔水面"的图，礁石少一点、水面更连片；草丛／恢复点与默认地图同基线。
+   *    数量的判据仍然只有 `generateTerrain()` 那一处（生成、避让出生点、判据都不变）。
+   * ★★ 2026-10-05 用户拍板（本次改动）：**这张图不刷毒沼**——基线上 `hazard: 0`
+   *    （＝18×13 上也撒 0 块）。理由是水面上"毒沼"读起来本来就不成立（脚下已经是海）。
+   *    ⚠️ 三条口径：
+   *      ① 只改**这张图的数量**，`hazard` 这个**地形本身一个字都没删**（`default` 照旧 3 块、
+   *         效果照旧 −3、素材 `assets/out/terrain/hazard@2x.png` 照旧要用）；
+   *      ② `generateTerrain()` 那条"数量 ＝ 基线 × 面积比"的算式**一个字没改**：
+   *         `Math.max(0, Math.round(0 × 1.52))` 自然就是 0 块，不是特判；
+   *      ③ 由于 `hazard` 在 `terrain` 表里排最后、且循环体一次都不进，**随机数消耗顺序没变**，
+   *         这张图上岩石/草丛/恢复点的落点与"还有毒沼时"逐格相同。
+   */
+  shallows: {
+    id: 'shallows',
+    name: '浅滩水路',
+    arena: 'sea',
+    terrain: { rock: 4, bush: 4, heal: 2, hazard: 0 },
+    features: {
+      water: {
+        // ★★ 甲板 ＝ **横跨左右全宽的一条带子、厚度 3 行、垂直居中**（18×13 → 行 5~7、列 0~17，共 54 格）。
+        //    `cols: COLS` 是"全宽"这个意思本身，别写成 18（棋盘再变就该跟着全宽，而不是留出一段水）。
+        deck: { cols: COLS, rows: 3 },
+        movePenalty: RULE.waterMovePenalty,
+        slowedTeams: ['p1'],
+      },
+    },
+    // ★ 道具：与 default **同一套默认值**（用户定："default 与 shallows 都开，用同一套默认值即可"）。
+    //   水面地图上道具照样只落在"不压水域/甲板"的合法格里（判据见 game.js 的 itemSpots）。
+    items: ITEM_RULE,
+    blurb: `大片水面 · 画面正中横着一条全宽木甲板（可站、照常移动）：水里起步的玩家方移动 −${RULE.waterMovePenalty}，甲板上与敌方照常 · 不刷毒沼`,
+  },
+};
+
+/**
+ * 把任意输入（网址参数 / 大厅按钮 / 章节数据）收敛成一个**存在的地图键**：
+ * 认不出的值一律退回 `default`——**绝不抛错**（大厅与引擎都用它兜底）。
+ */
+const resolveMapId = key =>
+  (typeof key === 'string' && Object.prototype.hasOwnProperty.call(MAPS, key) ? key : DEFAULT_MAP_ID);
+/** 全部地图（大厅按数据渲染按钮，所以加地图不用改界面）。 */
+const mapList = () => Object.values(MAPS);
+/**
+ * 某张地图的**居中甲板矩形**（`{ colStart, colEnd, rowStart, rowEnd }`），没有水域地图就是 `null`。
+ * ⚠️ **唯一口径**：`SEA_DECK` 与 `game.js` 的 `Game.deckRect()` 都调它，别在别处再算一遍居中。
+ * ★ 2026-10-05（棋盘 14×11 → 18×13）：起止行列**跟着棋盘重新居中**——由 COLS/ROWS 算出来，不写死。
+ * ★★ 2026-10-05（本次改动）：浅滩水路的甲板从"正中一小块 4×5 = 20 格"改成
+ *   **"横跨左右全宽的一条带子"（`cols: COLS`、`rows: 3`）**，于是这里算出来的是：
+ *     · 列：`(18 − 18) / 2 = 0` → 第 0~17 列（**整行全宽**）
+ *     · 行：`(13 − 3) / 2 = 5` → 第 5~7 行（**垂直居中**，正中那一行就是 `MID_ROW` = 6）
+ *   共 18 × 3 = **54 格**。算式一个字没改（仍然是"居中"这一条），只改了地图数据里的尺寸。
+ *   ⚠️ 因此"甲板在正中央"这件事既有纵向口径（`rowStart + rowEnd === ROWS − 1`），
+ *      也有横向口径（`colStart + colEnd === COLS − 1`）——两条都还在，见测试。
+ */
+function deckRectOf(map) {
+  const deck = map?.features?.water?.deck;
+  if (!deck || !(deck.cols > 0) || !(deck.rows > 0)) return null;
+  const colStart = (COLS - deck.cols) / 2, rowStart = (ROWS - deck.rows) / 2;
+  return { colStart, colEnd: colStart + deck.cols - 1, rowStart, rowEnd: rowStart + deck.rows - 1 };
+}
+/**
+ * ★ 第四章（以及所有"水里 −1"的对局）用的那条甲板：**浅滩水路地图的甲板**。
+ * ⚠️ 它不再是"写死给第四章的常数"，而是**从地图数据推导出来**的同一块甲板
+ *    （`{ colStart:0, colEnd:17, rowStart:5, rowEnd:7 }`，54 格）——
+ *    第四章指定 `map:'shallows'`，所以它拿到的**必然**是这一条（见 tests/maps.test.js ④）。
+ */
+const SEA_DECK = deckRectOf(MAPS.shallows);
+/**
+ * ★★ 2026-10-04 用户要求③（本次改版）：**远程角色的「拉扯」——`kite: true` 数据旗标**。
+ *
+ * 挂旗标的是**四个单位**（一律写在 `user` / `stand` 那一层，引擎侧只认字段、**绝不按角色名硬编码**）：
+ *   · `FIGHTERS.emperor.user`（霍尔·霍斯：单单位、本体射程 5）
+ *   · `FIGHTERS.joseph.user`（乔瑟夫：单单位、本体射程 3）
+ *   · `FIGHTERS.kakyoin.user` ＋ `FIGHTERS.kakyoin.stand`（花京院与远程替身绿色法皇，射程 3）
+ *
+ * 含义（读它的**只有** ai.js 的走位评分那一段）：AI 操作这些单位时会**尽量站在敌人够不着的地方出手**——
+ * 被逼近就**往后撤**，撤到"我打得着、他打不着"的射程边缘再开火（见 ai.js 的 `KITE`）。
+ *
+ * ⚠️ 三条口径：
+ *   ① 这是**纯 AI 旗标**（和 `flees` 同一类）：引擎本身不读它，所以 `attack()` / `preview()` /
+ *      `defense()` / `moveRange()` 的数值与改动前**逐值一致**——它不在 tools/rules-fingerprint.json
+ *      的基线里（那份只收录 hp/def/射程那一批），加它不会碰指纹测试；
+ *   ② **别的角色身上没有这个字段**，他们的走位评分与改动前逐值相同；
+ *   ③ 棋子对象是 `{ ...f.user, … }` / `{ ...f.stand, … }` 铺出来的（game.js 建棋子那一行），
+ *      所以旗标跟着对应的那一枚棋子走。
+ */
 const FIGHTERS={
   // ★ 2026-09-30 用户要求「削弱一下承太郎，减少他一点基础防御」：**基础防御 3 → 2**（原本全场最高）。
   //   ⚠️ 他是第一、四、五章的玩家角色，所以这一改会连带影响那三章的难度（第五章原来实测 17/20 胜、
@@ -1203,6 +1461,12 @@ const FIGHTERS={
   //       与「皇帝」（1 AP / CD 1 回合 / 射程 5：锁定一个单位，**一回合后** 10 点伤害、**按常规结算防御**）；
   //     · **原有的「场边冷枪」原样保留**（用户明确要求"两者都留"）——它是幕上的 `sniper` 旗标机制，
   //       不是技能，两者互不干扰（冷枪不消耗也不吃「瞄准」的次数）。
+  //   ★★ 2026-10-05 用户拍板：**再加第三个技能「暗枪」**（`SKILLS.darkgun`，不消耗 AP、
+  //      每回合一次、标两个位置、对手回合结束时结算 8 点计防御）。**第一章那套冷枪照旧不动。**
+  //   ★★ 同一天用户又拍板第二条：**「皇帝」与「暗枪」换位置**——技能表从 `['aim','emperor','darkgun']`
+  //      改成 `['aim','darkgun','emperor']`。于是「暗枪」是第二个、「皇帝」是第三个，
+  //      而**第三个技能会自动播大招插画**（见 main.js 那条"白名单 ∪ 第三技能"的规则）。
+  //      ⚠️ 只换**顺序**：两个技能的名字／机制／数值一个字都没动（费用、CD、射程、8 点、2 格……全照旧）。
   //   ⚠️ 早先还有两个旗标，**用户要求撤掉了**（"撤掉 immune/pinned 在本章的作用"）：
   //     · `immune`（打不死）——旧的"他只是外围骚扰"设计；第一阶段是波鲁纳雷夫单挑他，必须能被打伤；
   //     · `pinned`（钉在外圈）——同理，单挑要能追能打。他靠**射程 5 / 攻击 7 / 移动 2** 拉开距离，
@@ -1216,11 +1480,23 @@ const FIGHTERS={
   //     ⚠️ `geil`（J·凯尔）**仍然保持 `boss: true`、不进列表**（他是阶段 2 的敌人）。
   //   ⚠️ 移动仍然是 2（**不改成 0**）：改成 0 会让 tests 里那批配对对战收敛不了。
   //   **改之前先问用户。**
-  emperor:{ key:'emperor', label:'霍尔·霍斯 & 皇帝', solo:true, hp:40, def:2, distLimit:0, standDefBonus:0, standName:'皇帝',
+  //   ★★ 2026-10-05 用户拍板：**基础防御 2 → 1**（`def`）。其余数值**一个都没动**
+  //      （hp 40 / 移动 2 / 射程 5 / 攻击 7 / `solo` / `standName` / `sniper` / `kite` 全照旧）。
+  //      ⚠️ 连带影响只有一处，别漏：第八章阶段 1 那条**幕级加成**是 `buff: { atk:4, def:2 }`，
+  //        所以他在**那一场**的实际基础防御从 4 变成 **3**（1 + 2）——第一幕 `specialRules` 里
+  //        写死的「攻击 11、防御 4」那句玩家可见文案已跟着改成「防御 3」。
+  //      ⚠️ 他不属于 tools/rules-fingerprint.json 的基线（那份压根没有 emperor 这一项），所以指纹测试不受影响。
+  emperor:{ key:'emperor', label:'霍尔·霍斯 & 皇帝', solo:true, hp:40, def:1, distLimit:0, standDefBonus:0, standName:'皇帝',
+    // ★★ 2026-10-04 用户要求③：`kite` **数据旗标**——AI 操作他时会往"射程 5 的边缘、且敌人够不着"的地方站，
+    //   被逼近就先撤再开枪（读它的只有 ai.js 的走位评分；与 `sniper` 那条冷枪机制互不干扰）。
     user:{name:'霍尔·霍斯',tag:'替身使者',emoji:'🤠',color:'#c8a24a',move:2,range:5,dmg:7,
-      sniper:true}, stand:null },
+      sniper:true,kite:true}, stand:null },
   // 花京院：远程替身——替身攻击范围更远(3)、防御加成更低(仅+1)，主人与替身可拉开到3格
-  kakyoin:{ key:'kakyoin', label:'花京院 & 绿色法皇', hp:40, def:2, distLimit:3, standDefBonus:1, user:{name:'花京院',tag:'替身使者',emoji:'🧑',color:'#2e8b57',move:3}, stand:{name:'绿色法皇',tag:'远程替身',emoji:'💚',color:'#6fe08a',move:4,range:3,dmg:7} },
+  // ★★ 2026-10-04 用户要求③：`kite` **数据旗标**（本体与绿色法皇**两枚都挂**）——AI 操作他们时会保持
+  //   连携距离，同时尽量站在敌方射程之外出手（花京院本体打不了人，他那一枚只负责"别站进敌人的射程里"）。
+  kakyoin:{ key:'kakyoin', label:'花京院 & 绿色法皇', hp:40, def:2, distLimit:3, standDefBonus:1,
+    user:{name:'花京院',tag:'替身使者',emoji:'🧑',color:'#2e8b57',move:3,kite:true},
+    stand:{name:'绿色法皇',tag:'远程替身',emoji:'💚',color:'#6fe08a',move:4,range:3,dmg:7,kite:true} },
   // 阿布德尔：射程3、攻击7，但主人与替身必须保持≤2格
   // ★ 2026-09-30 用户要求「阿布德尔血量改为 40」：45 → **40**（第三章玩家是他，难度会略升）。
   avdol:{ key:'avdol', label:'阿布德尔 & 魔术师之红', hp:40, def:2, distLimit:2, standDefBonus:2, user:{name:'阿布德尔',tag:'替身使者',emoji:'🧙',color:'#a85a20',move:3}, stand:{name:'魔术师之红',tag:'替身',emoji:'🔥',color:'#ff8a3d',move:4,range:3,dmg:7} },
@@ -1231,7 +1507,9 @@ const FIGHTERS={
   // ⚠️ 但他**是有替身的**（隐者之紫 / Hermit Purple，技能 vine 的喊声就是 HERMIT PURPLE），
   //    所以界面不能写"无替身"：用 standName 记下替身名，只是不给它单独的棋子（stand 仍为 null）。
   joseph:{ key:'joseph', label:'乔瑟夫·乔斯达', solo:true, hp:40, def:2, distLimit:0, standDefBonus:0, standName:'隐者之紫',
-    user:{name:'乔瑟夫',tag:'替身使者',emoji:'🧓',color:'#c9a06a',move:3,range:3,dmg:7}, stand:null },
+    // ★★ 2026-10-04 用户要求③：`kite` **数据旗标**——AI 操作他时会站在 3 格射程的边缘放藤蔓／波纹，
+    //   敌人贴上来就先往后撤（撤不掉就照常打；读它的只有 ai.js 的走位评分）。
+    user:{name:'乔瑟夫',tag:'替身使者',emoji:'🧓',color:'#c9a06a',move:3,range:3,dmg:7,kite:true}, stand:null },
   // 伊奇：小型犬 + 沙之替身「愚者」，双单位、机动型。三个技能（潜沙/扬沙/沙之爪）已实装。
   // ★ 2026-09-30 用户觉得他太弱，一次加了三处（**再改先问**）：
   //   连携距离 2 → **3**、本体（伊奇）移动 3 → **4**、扬沙追加 **3 点真实伤害**（见下面 sandblast）。
@@ -1312,7 +1590,7 @@ const SKILLS={
   blaze:{ name:'涅槃', emoji:'🧯', cost:1, cd:0, by:'stand', once:true, desc:'消耗1行动点，一局限用一次：清除场上所有火焰格，每清除一格恢复2点血（受灼烧影响时治疗减半）。场上一格火焰都没有时不能使用。' },
   // ---- 花京院 / 绿色法皇 ----
   // cd:2 = 用户口径的「冷却 1 回合」（口径见文件顶部 SKILLS 开头的说明）
-  emerald:{ name:'绿宝石', emoji:'💎', cost:1, cd:2, range:3, by:'stand', cap:3, pillarHp:10, desc:'消耗1行动点，在绿色法皇3格内的空格生成一根绿宝石柱（生命10、最多3根）。冷却：放完的下个自己回合不能再放，隔一个回合才能再放。柱子会挡路；每根柱子为你自己的替身+1伤害，并给紧贴柱子的己方单位 +1 防御（**贴着一根就有，不叠加**；2v2 时队友贴着你的柱子也算）；只要场上有你的柱子，你自己的回合开始时就会为你恢复 1 点血（不随柱子数量叠加）。柱子可被攻击打碎（打碎不会让花京院方掉血，也不构成获胜条件）。' },
+  emerald:{ name:'绿宝石', emoji:'💎', cost:1, cd:2, range:3, by:'stand', cap:3, pillarHp:10, desc:'消耗1行动点，在绿色法皇3格内的空格生成一根绿宝石柱（生命10、最多3根）。冷却：放完的下个自己回合不能再放，隔一个回合才能再放。柱子会挡路；每根柱子为你自己的替身+1伤害，并给紧贴柱子的己方单位 +1 防御（贴着一根就有、不叠加；2v2 时队友贴着你的柱子也算）；只要场上有你的柱子，你自己的回合开始时就会为你恢复 1 点血（不随柱子数量叠加）。柱子可被攻击打碎（打碎不会让花京院方掉血，也不构成获胜条件）。' },
   trauma:{ name:'创伤', emoji:'💢', passive:true, by:'any', desc:'被动：绿色法皇攻击敌方替身时，永久降低该替身1点防御。整局只触发一次，不消耗行动点。' },
   splash:{ name:'绿宝石水花', emoji:'💧', cost:2, cd:3, range:4, base:6, perPillar:6, by:'stand', desc:'消耗2行动点，对绿色法皇4格内的一名敌人造成 6 + 6×柱子数 的伤害（按常规结算防御）。CD 3回合。' },
   // ---- 波鲁纳雷夫 / 银色战车 ----
@@ -1363,13 +1641,45 @@ const SKILLS={
   //   · 伤害 10 点**按常规结算防御**（不是真实伤害，也**不吃「瞄准」的无视防御**）；
   //   · 结算前目标已经倒下 → **静默跳过**（不扣血、也不报日志）。
   emperor:{ name:'皇帝', emoji:'🔫', cost:1, cd:2, range:5, by:'user', dmg:10, delayRounds:1,
-    desc:'消耗1行动点，CD 1回合：指定 5 格内的一个单位为目标（本体或替身都行），一回合之后它受到 10 点伤害（按常规结算防御，不是真实伤害）。锁定的是那个单位本身——它走到哪里都躲不掉；如果它在结算前就已经倒下，这一枪静默作废。冷枪照旧，两个都能用。' }
+    desc:'消耗1行动点，CD 1回合：指定 5 格内的一个单位为目标（本体或替身都行），一回合之后它受到 10 点伤害（按常规结算防御，不是真实伤害）。锁定的是那个单位本身——它走到哪里都躲不掉；如果它在结算前就已经倒下，这一枪静默作废。冷枪照旧，两个都能用。' },
+  // ★★ 暗枪（2026-10-05 用户拍板）：霍尔·霍斯的**第三个**技能，PvP 也能用。
+  //   用户原话：「霍尔的场外冷枪也加上，作为 pvp 技能：『暗枪』不消耗 ap，每回合会标记地图上的
+  //   两个位置（攻击范围内），在对方回合结束时对范围内敌人造成 8 点伤害」。
+  //   随后明确的两点：**8 点按常规结算防御**（不是真实伤害）；**两个位置由操控者手动选**
+  //   （像既有技能「皇帝」那样点目标）。
+  //
+  //   落地口径（全部按用户口径，**不许自己改**）：
+  //     · `cost: 0`＝**不消耗行动点**；`cd: 1`＝项目惯例里的「每回合一次」（数据值＝用户口径
+  //       冷却回合数 + 1，见本文件顶部那段 CD 说明：cd 1 就是"同一回合内只放一次"）；
+  //     · `by: 'user'`＝本体释放（照 `aim`／`emperor` 的写法，他是单单位角色）；
+  //     · `range: 5`＝**可标记的范围＝他自己的攻击射程**（`FIGHTERS.emperor.user.range`，
+  //       现在两处都是 5；`tests/darkgun.test.js` ① 有一条把这两个数钉在一起）；
+  //     · `marks: 2`＝一次使用**标记两个位置**：玩家连着点两格（两格不能重复、都要在射程内），
+  //       走的是既有多格技能「火焰道路」那套流程（第一格落地就扣 AP／进 CD，第二格自动收手）；
+  //     · `dmg: 8`＝**对手回合结束时**，踩在标记格上的**敌方**单位各受 8 点伤害，
+  //       **按常规结算防御**（走 `preview()`／`damage()` 那套，不是真实伤害通道）；
+  //     · 结算完**标记清空**；标记期间对手看得见、能躲；标到自己人脚下不会伤到自己人。
+  //
+  //   ⚠️⚠️ 第八章现有的**自动「场边冷枪」一个字都没动**（那是幕上的 `sniper` 旗标机制：
+  //      每 2 回合、净伤 6 真实伤害、弹道预告）。用户明确要求"两者都留"，两条路互不干扰：
+  //      冷枪不消耗也不吃「瞄准」的次数，暗枪同样不碰那些账本。
+  //   ⚠️ `desc` 在界面上是**纯文本**（main.js 的 tooltip 走 `esc(plain(...))`），
+  //      所以这里不许写 `**加粗**`，也不许出现 HTML 标签（`tests/plain-text-labels.test.js` 专门查这个）。
+  darkgun:{ name:'暗枪', emoji:'🌑', cost:0, cd:1, range:5, by:'user', dmg:8, marks:2,
+    desc:'不消耗行动点，每回合限 1 次：在 5 格内连着点两个格子埋下暗枪（两个位置不能重复，都要在射程内，被棋子占着的格子也能标）。对手回合结束时，踩在标记格上的敌方单位各受到 8 点伤害（按常规结算防御，不是真实伤害），结算完标记清空。标记就落在地上，对手在自己的回合里看得见、也躲得开；只打敌方单位，标到自己人脚下不会伤到自己人。原有的场边冷枪照旧，几个技能各算各的。' }
 };
 
 const skillSetFor = key => ({jotaro:["ora","star","time"],dio:["drain","knife","time"],kakyoin:["emerald","trauma","splash"],avdol:["burn","flame","blaze"],polnareff:["mastery","armor","blade"],joseph:["nextline","vine","hamon"],iggy:["dive","sandblast","claw"],gray_fly:["needle","disguise"],fake_captain:["drag","sucker","aquatic"],temperance:["erosion","slime"],
   // ★ 霍尔·霍斯（2026-10-03 用户拍板）：两个新技能，顺序就是 `['aim','emperor']`。
   //   ⚠️ 他**没有**剧情技能替换（章节里没写 swaps.emperor），所以这一份就是他在阶段 1 用的技能表。
-  emperor:["aim","emperor"]}[key] || []);
+  // ★★ 2026-10-05 用户拍板①：**在他后面补上第三个「暗枪」**。
+  // ★★ 2026-10-05 用户拍板②：**「皇帝」与「暗枪」换位置** → `['aim','darkgun','emperor']`
+  //   （「暗枪」第二个、「皇帝」第三个）。界面按 Q/W/E 取键位
+  //   （hud.js 的 `['Q','W','E'][index]`，main.js 键盘也是 `['q','w','e']`），
+  //   两个技能只是**互换**，所以第三格仍然落在 E 上——**界面那一套一个字都不用改**。
+  //   ⚠️ 「皇帝」成了第三个技能，于是它自动吃"第三技能播大招插画"那条规则（见 main.js / ui/cutin.js）。
+  //   ⚠️ 只换顺序：两个技能的机制与数值一个字都没动（下面 SKILLS 里那两条原样）。
+  emperor:["aim","darkgun","emperor"]}[key] || []);
 
 /** 可选角色（剧情 boss 带 boss:true，不进选人界面，只能作为剧情模式的敌方出场）。 */
 const playableFighters = () => Object.values(FIGHTERS).filter(fighter => !fighter.boss);
@@ -1486,8 +1796,21 @@ const STORY_CHAPTERS = [
     player: 'jotaro',
     enemy: 'fake_captain',
     brief: '开往新加坡的船上，敌人从海面下发动攻击。替身「暗蓝之月」在水里几乎无解，还会夺走对手的呼吸；船在航行中途，四周只有水，退无可退。',
-    // 这一战的场地是海面：棋盘中央一块 4×5 的甲板，其余格子都是水（见 SEA_DECK 与 RULE.waterMovePenalty）
+    // 这一战的场地是海面：画面正中横着一条全宽的木甲板（行 5~7），其余格子都是水
+    // （见 SEA_DECK 与 RULE.waterMovePenalty）
     arena: 'sea',
+    // ★★ 2026-10-05 加地图体系之后：这一战**指定地图 `shallows`（浅滩水路）**——
+    //   它正是"第四章一直在用的那一套"（大片水面 ＋ 木甲板 ＋ 水里玩家方 −1），
+    //   现在从"写死给第四章"变成了地图数据里的一项，所以：
+    //     · 这一战的玩法与观感仍然是**同一套**（水面铺满、水里照样 −1、只影响玩家方、甲板上满移动）；
+    //     · 别的对局（自由对局的大厅里选「浅滩水路」）拿到的是**同一套**规则与画面。
+    //   ★★ 2026-10-05（本次改动）用户拍板"第四章也跟着改"：甲板从 20 格的中块变成 54 格的全宽带子，
+    //      于是**开局四枚棋子都站在甲板上**（`DEPLOY_ROW === MID_ROW` 正好落在行 5~7 中间），
+    //      水陆分布随之变了——这是用户明确要的连带结果，不是回归（见 tests/maps.test.js ④）。
+    //   ⚠️ `arena:'sea'` 一个字都没动：它现在表示"**背景画**用海面那张"（章节仍然可以只指定背景
+    //      而不指定地图——那种情况走默认地图，见 game.js 的 start() 里那段地图解算）。
+    //   ⚠️ 引擎读地图**只读这一处**（`Game.mapId`），别在别处按章节判断水域。
+    map: 'shallows',
     // ⚠️ 战斗放在第 1 段之后：第 2 段后半已经写了「承太郎……落水之后才把局面改写」（＝结果），
     //    放前面等于提前剧透（第一章、第三章都踩过同一个坑）。
     scenes: [
@@ -1583,20 +1906,34 @@ const STRENGTH = {
   ],
   // 棋盘变形：每回合从这个「隔板位」清单里翻几格（钢壁 ⇄ 空地）
   flipPerTurn: 2,
+  //
+  // ★★ 2026-10-05（棋盘 14×11 → 18×13）：隔板位**跟着棋盘一起长大**，但仍守原来的三条口径：
+  //   ① 位置**关于棋盘中心左右/上下对称**（P1 列由 `mirrorCol()` 算，不手写）；
+  //   ② 不与开局站位（正中的那一行上的第 1/3/5/7 列，见 game.js 的 DEPLOY）、
+  //      不与要害角落、不与猩猩登场点重合；
+  //   ③ 六面隔板分三行（中心行 ±2）摆，外圈一组两行、内圈一组一行 —— 与旧棋盘同构。
+  //   旧棋盘（14×11）是第 3/5/7 行的第 3/10 与 5/8 列；现在是第 4/6/8 行的第 4/13 与 6/11 列。
   bulwarkSlots: [
-    { row: 3, col: 3 }, { row: 3, col: 10 }, { row: 5, col: 5 },
-    { row: 5, col: 8 }, { row: 7, col: 3 }, { row: 7, col: 10 },
+    { row: MID_ROW - 2, col: 4 }, { row: MID_ROW - 2, col: mirrorCol(4) },
+    { row: MID_ROW, col: 6 }, { row: MID_ROW, col: mirrorCol(6) },
+    { row: MID_ROW + 2, col: 4 }, { row: MID_ROW + 2, col: mirrorCol(4) },
   ],
   // ★ 三个要害**依次出现在固定角落**（用户 2026-09-27）：一次只有一个，拆掉才出下一个。
   //   顺序是顺时针扫一圈：左上 → 右上 → 右下，逼着玩家横穿整艘船。
   //   `key` 对应 assets.js 的 PART_SPRITES（棋子上的物件图）；找不到图就退回代码画的钢块。
+  //
+  //   ★★ 2026-10-05（棋盘放大）：**"固定在角落"这句话不变**，但角落的坐标必须跟着棋盘走——
+  //      所以这里只写"离边 1 格"（`1` / `COLS - 2` / `ROWS - 2`），
+  //      18×13 时是 (1,1) / (1,16) / (11,16)（旧棋盘 14×11 时是 (1,1) / (1,12) / (9,12)）。
+  //      判据「离棋盘四角最多 1 格」由 tests/strength.test.js 按 ROWS/COLS 核对。
   parts: [
     { name: '绞盘', key: 'part-winch', row: 1, col: 1 },
-    { name: '承重柱', key: 'part-column', row: 1, col: 12 },
-    { name: '锅炉', key: 'part-boiler', row: 9, col: 12 },
+    { name: '承重柱', key: 'part-column', row: 1, col: COLS - 2 },
+    { name: '锅炉', key: 'part-boiler', row: ROWS - 2, col: COLS - 2 },
   ],
-  // 拆完最后一个要害，猩猩从这里登场（棋盘中央，戏剧性最强）
-  bossSpawn: { row: 5, col: 7 },
+  // 拆完最后一个要害，猩猩从这里登场（棋盘**正中央**，戏剧性最强）
+  // ★★ 2026-10-05：由 `MID_ROW` 与 COLS 算出来（18×13 → (6,9)；旧 14×11 时是 (5,7)），不写死。
+  bossSpawn: { row: MID_ROW, col: COLS >> 1 },
   // 阶段：还没拆 → 拆掉 1 个 → 拆掉 2 个 → 全拆（猩猩登场，换成破损船体）
   arenas: ['ship-deck', 'ship-corridor', 'ship-engine', 'ship-broken'],
   // 每一层在界面上的说法（换层横幅、状态标签都用它，别再手写一遍）
@@ -1627,13 +1964,18 @@ STORY_CHAPTERS.push({
   scenes: [
     { kind: 'read', readId: 'devil', upto: 2, note: '旅馆里的伏击' },
     { kind: 'battle', note: '波鲁纳雷夫 对 黑檀之魔' },
-    { kind: 'read', readId: 'devil', from: 2, note: '战斗之后 · 把狠劲收回去' },
+    { kind: 'read', readId: 'devil', from: 2, note: '战斗之后 · 不屈' },
   ],
   swaps: {
     polnareff: {
       // 技能不变（他就是那套卸甲／精湛剑术／剑刃），这一关只加觉醒
+      // ★★ 2026-10-04 用户要求①（任务一）：觉醒名改成**「不屈」**（原来叫「把狠劲收回去」）。
+      //   ⚠️ **只改名字**：`hpRatio` / `atk` / `ap` / `desc` 的数值一个字都没动
+      //      （desc 里本来也没写那个旧名字，所以措辞不用跟着改）。界面上显示成
+      //      「不屈 · 半血后觉醒」→觉醒后「不屈 · 攻击 +3 · 每回合 +1 AP」。
+      //   这一条由 `tests/polnareff-rage-name.test.js` 逐章遍历钉着（对照：承太郎那几章仍是「星尘的怒火」）。
       rage: {
-        hpRatio: 0.5, atk: 3, ap: 1, name: '把狠劲收回去',
+        hpRatio: 0.5, atk: 3, ap: 1, name: '不屈',
         desc: '共享生命降到一半以下后永久获得：攻击力 +3、每个己方回合 +1 行动点。越想赢，越要先学会不动手——机会只来一次。',
       },
     },
@@ -1714,9 +2056,11 @@ STORY_CHAPTERS.push({
  *  ⑤ ★★★ **2026-10-03 第四条用户要求：阶段 1 改成"注定打不过"的剧情战**（本次改版，推翻上面第 ④ 条里
  *     "把他的血打空才算赢"那半句）。原作里是**阿布德尔替波鲁纳雷夫挡下那一枪而死**，
  *     所以这一场玩家**赢不了**，引擎侧新增三样**幕级数据**（都写在下面前一幕上，绝不改 `FIGHTERS`）：
- *       · `buff`＝**这一场的加成**（`{ slot, atk, def }`）：他攻击 +4、防御 +2（7→11、2→4）。
+ *       · `buff`＝**这一场的加成**（`{ slot, atk, def }`）：他攻击 +4、防御 +2 → 这一场是 7→11、1→3。
+ *         ⚠️ 2026-10-05 用户把他**基础防御 2 → 1** 之后，这一场的落点跟着从 4 变成 **3**——
+ *            加成那份数据（`def: 2`）一个字没动，变的是**基数**。
  *         引擎把加成并进 `s.fighters` 的**那份拷贝**里（见 `Game.applySceneBuff`），
- *         `FIGHTERS.emperor` 的基础数值**一个字都没动**——自由对局里他还是 7／2。
+ *         `FIGHTERS.emperor` 的基础数值照旧不被污染——自由对局里他是 7／1（本次改动后）。
  *       · `hpFloor`＝**剧本保护**（`{ slot, min }`）：他这一场**不会被玩家杀死**，血最低停在 1
  *         （见 `Game.hpFloor` / `damage()` / `preview()`）；否则会出现"把他打死了却还要演他救场"的矛盾。
  *       · `storyLoss`＝**必败剧情战的触发点**（`{ slot, hpRatio, reason, banner, notice }`）：
@@ -1756,7 +2100,8 @@ STORY_CHAPTERS.push({
       // ★ 这一场才有场边冷枪（见下面的 SNIPER）：开火前一回合地面画出弹道，伤害 6。
       sniper: true,
       // ★★ 本场加成（用户 2026-10-03 第四条，数值不许改）：他这一场**攻击 +4、防御 +2**
-      //   （7→11、2→4）。⚠️ 写在**幕**上，绝不改 `FIGHTERS.emperor`——自由对局里他还是原本的 7／2。
+      //   → 7→11、**1→3**（⚠️ 2026-10-05 他把基础防御从 2 降到 1 之后，这一场是 3 而不是 4；
+      //   加成本身照旧是 `def: 2`）。⚠️ 写在**幕**上，绝不改 `FIGHTERS.emperor`——自由对局里他是原本的 7／1。
       //   引擎的落点：`Game.applySceneBuff`（start() 里把加成并进 `s.fighters` 的那份拷贝）。
       buff: { slot: 'p2', atk: 4, def: 2 },
       // ★★ 剧本保护：他这一场**不能被玩家杀死**，血最低停在 1。
@@ -1779,7 +2124,7 @@ STORY_CHAPTERS.push({
       //      （否则玩家会一直追着一个打不死的枪手磨）。
       specialRules: [
         '**这一场没有队友**：阿布德尔不在场上，你操控波鲁纳雷夫一个人对霍尔·霍斯。',
-        '**这一场你赢不了**：霍尔·霍斯在这一场格外凶（攻击 11、防御 4），而且**他不会在这一场被击倒**——他的生命最低只会停在 1。',
+        '**这一场你赢不了**：霍尔·霍斯在这一场格外凶（攻击 11、防御 3），而且**他不会在这一场被击倒**——他的生命最低只会停在 1。',
         '**撑到波鲁纳雷夫只剩一半生命**：那一刻剧情会立刻接上，这一场判你战败；但**故事照常往下走**，不会让你重打这一场。',
         '**场边冷枪**：他**每 2 回合开一枪，净伤 6 点真实伤害（无视一切防御）**；**开火前一个回合，地面会画出弹道和目标格**——**站在那一格上才挨打，挪开就能躲**，打在空地上只是白响一声。',
       ],
@@ -1869,8 +2214,11 @@ STORY_CHAPTERS.push({
 const MIRRORS = {
   count: 4,        // 开局撒几个（用户定的 4）
   name: '反光点',   // 界面上的叫法（状态标签、格子上的一句话说明书都用它，别再手写一遍）
-  // "不贴边"的具体口径：离棋盘每条边至少留这么多格。11×14 的棋盘上 margin=2 就是 7×10 的中场，
-  // 既不会贴边，也够撒 4 个还带余量（确保正常情况一定放得出来）。
+  // "不贴边"的具体口径：离棋盘每条边至少留这么多格。判据是**按 COLS/ROWS 算**的
+  //（见 `Game.generateMirrors()` 里的 `inside()`），所以棋盘尺寸一变就自动跟着变：
+  //   · 旧棋盘 14×11 → 中场 10×7 = 70 格；
+  //   · 18×13 的棋盘上 margin=2 就是 **14×9 = 126 格**的中场，
+  //     既不会贴边，也够撒 4 个还带一大截余量（确保正常情况一定放得出来）。
   margin: 2,
 };
 
@@ -2124,45 +2472,86 @@ STORY_CHAPTERS.find(c => c.id === 'chapter-7').specialRules = [
 
 
 
-return {RULE, FIGHTERS, SKILLS, SEA_DECK, skillSetFor, playableFighters, isBoss, STORY_CHAPTERS, STRENGTH, strengthChapter, MIRRORS, SNIPER, TEMPERANCE, EBONY};
+return {DEFAULT_MAP_ID, RULE, FIGHTERS, SKILLS, ITEM_TYPES, ITEM_RULE, resolveItemRule, MAPS, resolveMapId, mapList, deckRectOf, SEA_DECK, skillSetFor, playableFighters, isBoss, STORY_CHAPTERS, STRENGTH, strengthChapter, MIRRORS, SNIPER, TEMPERANCE, EBONY};
 })();
 
 // ===== src/core/game.js =====
 __mods["src/core/game.js"] = (function(){
-const {makeTiles, buildIndex, neighbors, hexDist, tileKey, tileLabel, ROWS, COLS} = __mods["src/core/hex.js"];
-const {RULE, FIGHTERS, SKILLS, STORY_CHAPTERS, STRENGTH, EBONY, TEMPERANCE, MIRRORS, SNIPER, skillSetFor, playableFighters, isBoss, SEA_DECK} = __mods["src/core/rules.js"];
+const {makeTiles, buildIndex, neighbors, hexDist, tileKey, tileLabel, ROWS, COLS, mirrorCol, MID_ROW} = __mods["src/core/hex.js"];
+const {RULE, FIGHTERS, SKILLS, STORY_CHAPTERS, STRENGTH, EBONY, TEMPERANCE, MIRRORS, SNIPER, MAPS, DEFAULT_MAP_ID, resolveMapId, mapList, deckRectOf, skillSetFor, playableFighters, isBoss, SEA_DECK, ITEM_TYPES, ITEM_RULE, resolveItemRule} = __mods["src/core/rules.js"];
 
 /** 剑刃的六个直线方向（轴向 q/r 增量）。 */
 const BLADE_DIRS = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, -1], [-1, 1]];
 
 /**
- * ★★ 开局站位表——**摆放规则只在这一处**（棋盘 14 列，P2 与 P1 关于棋盘中心左右镜像，镜像列 = 13 − 列）。
+ * ★★ 开局站位表——**摆放规则只在这一处**。
  *
- * | 局面 | P1 第一枚 / 第二枚 | P2 第一枚 / 第二枚 |
- * |------|--------------------|--------------------|
- * | 1v1  | 使者 2 / 替身 4     | 使者 11 / 替身 9    |
- * | 2v2 第一个角色 | 3 / 5 | 10 / 8 |
- * | 2v2 第二个角色 | 0 / 2 | 13 / 11 |
+ * 坐标系统（18 列 × 13 行，2026-10-05 放大后）：
+ *   · **摆放行**：棋盘**正中的那一行** ＝ `DEPLOY_ROW`（13 行 → 第 6 行；旧 11 行时是第 5 行，由 ROWS 算出来，别手写）；
+ *   · **镜像列**：P2 的列**一律**由 P1 的列算出来 —— `mirrorCol(列) = COLS - 1 - 列`（18 列时就是 **17 − 列**）。
+ *     ⚠️ 改动前这里把 P2 的列手写了一遍（14 列时代是 `13 − 列`）；放大到 18 列之后手写必错，
+ *        所以现在只写 P1 一侧，P2 一侧由 `mirrorCol()` 推导 —— 两边永远严格镜像。
  *
- * 三条硬约束（改这张表之前先确认它们还成立）：
- *   ① **1v1 那一行不许动**——`tests/game.test.js` 的「开局站位左右镜像对称」把它钉死了；
- *   ② 每枚棋子都要落在**合法且不重叠**的格子上（行固定 5，列见上表）；
- *   ③ 每个角色自己的两枚棋子距离 ≤ 该角色的 `distLimit`（同排隔 2 列 = 距离 2，最紧的承太郎/DIO 也是 2）。
+ * | 局面 | P1 第一枚 / 第二枚（使者 / 替身） | 对应列 | P2（由镜像列算出） |
+ * |------|-----------------------------------|--------|--------------------|
+ * | 1v1          | 3 / 5 | 3、5     | 14 / 12 |
+ * | 2v2 第一个角色 | 5 / 7 | 5、7     | 12 / 10 |
+ * | 2v2 第二个角色 | 1 / 3 | 1、3     | 16 / 14 |
+ *
+ * 四条硬约束（改这张表之前先确认它们还成立）：
+ *   ① 每枚棋子都要落在**合法且不重叠**的格子上（行固定 `DEPLOY_ROW`，列见上表）；
+ *   ② **双方严格镜像**：`P2 列 === mirrorCol(P1 列)`，而且行相同（`tests/board-size.test.js` 逐枚核对）；
+ *   ③ 每个角色自己的两枚棋子距离 ≤ 该角色的 `distLimit`（同排隔 2 列 = 距离 2，最紧的承太郎/DIO 也是 2），
+ *      所以每一对都必须**恰好隔 2 列**；
+ *   ④ 1v1 的四枚棋子要落在**合理的相对位置**：离左右边各 3 列（不挤边缘）、
+ *      使者朝外、替身朝内（替身更靠中线），两名使者之间隔 11 列（不贴脸，约 3 个移动回合接敌）。
  */
 const DEPLOY = {
-  solo: { p1: { user: 2, stand: 4 }, p2: { user: 11, stand: 9 } },
-  pair: { p1: { user: 3, stand: 5 }, p2: { user: 10, stand: 8 } },
-  outer: { p1: { user: 0, stand: 2 }, p2: { user: 13, stand: 11 } },
+  solo: { user: 3, stand: 5 },
+  pair: { user: 5, stand: 7 },
+  outer: { user: 1, stand: 3 },
 };
+
+/** 摆放行 ＝ 棋盘**正中的那一行**（13 行 → 6；11 行 → 5）。由 ROWS 算，别写死。 */
+const DEPLOY_ROW = MID_ROW;
+
+/**
+ * ★★ 野外地形的**面积换算基准**：**按棋盘面积给足**（2026-10-05 棋盘 14×11 → 18×13 时定的口径）。
+ *
+ * 由来：岩石/草丛/恢复点/毒沼原本是按 14×11 = **154 格**配的（6 / 4 / 2 / 2）。
+ * 棋盘放大到 18×13 = **234 格**后，如果数量不变，密度就掉了 1/3——地形变成稀稀拉拉的摆设。
+ * 所以数量**只按面积等比放大**（比值 234/154 ≈ 1.52，四舍五入取整）：
+ *   岩石 9 / 草丛 6 / 恢复点 3 / 毒沼 3（合计 21 块，旧棋盘是 14 块）。
+ *
+ * ⚠️ 三条别改错：
+ *   ① **只放大数量，判据一个字没动**——仍然"不与任何单位的出生点相邻（`hexDist > 1`）"、
+ *      仍然从所有合法空格里随机挑（见 `generateTerrain()`）；船体关卡照旧一块都不撒；
+ *   ② 地形**效果**（岩石阻挡通行/相邻 +1 防、草丛 +3 防、恢复 +10、毒沼 −3）一个数都没动；
+ *   ③ 写成"基线 × 面积比"的算式而不是把 9/6/3/3 写死：以后棋盘再变，改 COLS/ROWS 就够。
+ *
+ * ★★ 2026-10-05 加地图体系：**那份"基线"从这里的常量搬进了地图数据**
+ *    （`rules.js` 的 `MAPS.default.terrain` ＝ `{ rock: 6, bush: 4, heal: 2, hazard: 2 }`，
+ *     一个数都没变），因为每张地图各有各的元素与数量。留在 game.js 的只有这个**换算基准**——
+ *    它是"棋盘有多大"的属性，不是"哪张地图"的属性。
+ */
+const TERRAIN_BASE_AREA = 154;
+
+/**
+ * 道具加成表的"空值"：**永远是同一个冻结对象**，读不出东西时返回它，
+ * 于是调用方（`moveRange` / `baseDefense` / `damageBonus` / `distLimit`）不用到处写 `?.` 与 `|| 0`。
+ */
+const NO_ITEM_BUFF = Object.freeze({ atk: 0, def: 0, move: 0, dist: 0 });
+
 /**
  * 算出一个槽位的某一枚棋子该站在哪。
  * 单单位角色（乔瑟夫）没有替身棋子，让他直接站在**原本替身的位置**（离中线更近一些）。
  */
 function deploySpot(slot, fighter, kind, twoSided = false) {
   const team = teamOf(slot);
-  const row = !twoSided ? DEPLOY.solo : (slotIndex(slot) ? DEPLOY.outer : DEPLOY.pair);
+  const line = !twoSided ? DEPLOY.solo : (slotIndex(slot) ? DEPLOY.outer : DEPLOY.pair);
   const column = (kind === 'user' && !fighter.stand) ? 'stand' : kind;
-  return { row: 5, col: row[team][column] };
+  const p1Col = line[column];
+  return { row: DEPLOY_ROW, col: team === 'p1' ? p1Col : mirrorCol(p1Col) };
 }
 
 
@@ -2213,6 +2602,8 @@ class Game {
     this.control = null;
     /** ★★ 这一场属于哪一幕（见 setRoster 的 `scene`）；null ＝ 老口径（s.story 就是章节对象）。 */
     this.storyScene = null;
+    /** ★★ 自由对局在大厅里选的**地图**（见 setMap）；null ＝ 没选（用 default）。 */
+    this.requestedMap = null;
     this.reset();
   }
 
@@ -2249,6 +2640,26 @@ class Game {
     this.storyScene = roster?.scene || null;
     return this;
   }
+  /**
+   * ★★ 2026-10-05 用户拍板：**登记自由对局要用的地图**（大厅选好地图之后、`start()` 之前调一次）。
+   *
+   * 为什么和 `setRoster()` 一样不加参数？`start(p1, p2, mode, options)` 的调用点
+   * （main.js 里那一行）被 tests/title-screen.test.js 的正则钉住了，所以地图也走"登记"这条路。
+   *
+   * 三条口径：
+   *   ① 认不出的地图名**不抛错**：`resolveMapId()` 把它收敛成 `default`（大厅与网址参数都靠它兜底）；
+   *   ② 登记的内容**只在自由对局生效**——剧情章节自带地图（`STORY_CHAPTERS[].map`），
+   *      所以剧情模式下登记值被忽略（第四章不会因为玩家在大厅点过别的图而换掉海面）；
+   *   ③ 登记值在 `start()` 里消耗掉（地图只对那一局有效），与 roster / control 同一套写法。
+   */
+  setMap(mapId = null) {
+    this.requestedMap = mapId == null ? null : resolveMapId(mapId);
+    return this;
+  }
+  /** 这一局用的**地图数据**（`MAPS` 里的一项）。永远有值——认不出的键在 start() 里已经退回 default。 */
+  map() { return MAPS[this.s.mapId] || MAPS[DEFAULT_MAP_ID]; }
+  /** 这一局用的地图键（渲染层的静态层缓存键也读它，见 ui/render.js 的 baseStateKey）。 */
+  mapId() { return this.s.mapId || DEFAULT_MAP_ID; }
   /** 某个角色名能不能当"第二个角色"（存在、且不是剧情 boss）——自由对局用。 */
   static secondUsable(key) { return !!key && !!FIGHTERS[key] && !FIGHTERS[key].boss; }
   /** 按来源挑"能不能当第二个角色"的判据：章节写死的席位只要求角色存在。 */
@@ -2323,6 +2734,46 @@ class Game {
     return from;
   }
 
+  // ================= 角色被打倒：棋子离场、**让出格子** =================
+  /**
+   * ★★ 角色被打倒（该槽位**共享生命归零**）→ 把他这一场的棋子从棋盘上**移除**，让出格子。
+   *
+   * 2026-10-04 用户报的 bug（原话）：「双人对战死了会占位置」——2v2 里一个角色被打倒之后，
+   * 他那两枚棋子还留在棋盘上（只是被画成压暗的"尸体"），于是**继续挡路**：别的棋子走不过去、
+   * 也落不上去。1v1 时因为这一局立刻结束，看不出来。
+   * ⚠️ 这正是当初 2v2 上线时**记在案的取舍**（"尸体留在棋盘、仍挡路"），用户现在要求改掉——
+   *    所以这里是**替换**那套取舍，不是又加一层新机制。
+   *
+   * 写法照第七章 `unmaskIfNeeded` 那一套（过滤 `s.units` ＋ 必要的状态清理 ＋ 事件 ＋ `touch()`），
+   * **不另立一套并行的状态**：
+   *   · **只拿掉这一个槽位自己的棋子**（本体与替身；单单位角色只有一枚）——对手的棋子、宝石柱、
+   *     火焰、反光点、船体要害**一概不动**（柱子／火焰／要害各有各的归属）；
+   *   · 通行与落点的判据本来就全读 `occupant()`（＝`s.units` ＋ `s.pillars`），所以"移除即让路"
+   *     **不需要改任何**移动／路径阻挡／连携距离／射程代码——那几处自然跟着对；
+   *   · ★ 第八章「反光点」那一幕也一样：吊死者栖着的**反光点／岩石格**在这一刻就空出来
+   *     （`mirrorOpenFor()` / `mirrorLanding()` 读的正是 `occupant()`）；
+   *   · 正在选中／瞄准的如果就是被拿掉的那一枚，选区一起清掉（免得界面盯着一枚不存在的棋子）；
+   *   · 报一条 `status`（进战斗记录）＋ 一条 `notice`，**不写进台词**（台词有"零机制词"的硬规矩）。
+   *
+   * ⚠️ 调用时机见 `damage()`：**先移除、再判胜负**（在调用方的 `checkEnd()` 之前）。
+   *   于是"两个都倒下才判负"的既有口径一个字没变；1v1 判负时也只是"结束前先腾了格子"，
+   *   **结束的时机与结果照旧**（既不提前也不延后）。
+   */
+  removeFallenSlot(slot) {
+    const s = this.s;
+    if (s.phase !== 'battle' || !slot || this.slotAlive(slot)) return false;
+    const gone = s.units.filter(u => u.slot === slot);
+    if (!gone.length) return false;
+    s.units = s.units.filter(u => u.slot !== slot);
+    if (s.selectedId && gone.some(u => u.id === s.selectedId)) this.clearSelection();
+    // 文案口径与 `unmaskIfNeeded` 那条同一取法：`label` 是"XX & YY"（单单位角色就是"XX"）
+    const who = this.fighter(slot)?.label || gone[0].name;
+    this.emit('status', { side: slot, slot, text: `${who} 倒下了 · 棋子离场，让出了位置` });
+    this.notice(`${who} 倒下了 · 它让出了位置。`, 'warn');
+    this.touch();
+    return true;
+  }
+
   reset() {
     this.epoch++;
     // ★ 1v1 → ['p1','p2']；2v2 → ['p1','p1b','p2','p2b']。
@@ -2332,12 +2783,26 @@ class Game {
     this.s = {
       slots,
       phase: 'select', mode: 'hotseat', turn: 'p1', turnNumber: 1,
+      // ★★ 这一局用的是哪张**地图**（`MAPS` 的键，见 rules.js 的地图注册表）。
+      //   `start()` 里解算一次（剧情＝章节自带的 `map`，自由对局＝大厅登记的 `setMap`，
+      //   都没有就是 default），之后整局只读它：地形撒法、背景画、水域与甲板
+      //   （`deckRect()` / `isWaterTile()` / `moveRange()`）全部由这一个键推出来——
+      //   **地图差异只在这一处收敛**，别在别处写 if。
+      //   reset() 之后是 default，所以"还没开局"时一切判据都退化成"没有特色地形"的普通陆战。
+      mapId: DEFAULT_MAP_ID,
       // ★★ 每个槽位由谁控制：`{ p1: 'human' | 'ai', … }`，**只有参战的槽位有键**。
       //   由 start() 按 setRoster 登记的控制表（或 mode 的兼容默认值）填好；
       //   凡是"这个位子该不该自动行动"的判断都读它（`isAI()`），不要再按整方判断。
       control: {},
       units: [], fighters: {}, hp: pair(0), ap: pair(0), turnAP: pair(RULE.apPerTurn),
       terrain: {}, bushTimer: {}, pillars: [], fire: [], cd: pair(() => ({})),
+      // ★★ 2026-10-05 用户拍板：**可拾取的道具**（地形交互的第二层，数值见 rules.js 的 ITEM_TYPES）。
+      //   又是**一层独立状态**，同样不塞进 `s.terrain`（地形那一套有岩石／草丛／恢复点／毒沼的既有分支）：
+      //     · `items`＝场上还没被捡走的道具，每项 `{ id, type, name, row, col, turn }`；
+      //     · `itemBuffs`＝**按角色槽位**记的永久加成 `{ atk, def, move, dist }`——一个角色捡到，
+      //       他的本体与替身一起吃到（与项目既有的"按 slot 记账"一致）；不是全局、也不是按队。
+      //       ⚠️ 「时间」那件**不进这张表**：它是"当场 +1 行动点"，身上没有可常驻的加成。
+      items: [], itemBuffs: pair(() => ({ ...NO_ITEM_BUFF })),
       // ★★ 第八章「反光点」（用户 2026-10-03 定）：每项 `{ id, row, col, sealed }`。
       //   ⚠️ **不塞进 `s.terrain`**——地形那一套有岩石／草丛／恢复点／毒沼的既有分支，
       //      混进去会牵连一堆与本章无关的判定。反光点是"只在带 `mirrors` 旗的章节里才有"的独立一层，
@@ -2358,6 +2823,15 @@ class Game {
       //   · `emperorMark[目标槽位]`＝「皇帝」锁定的那个单位：`{ by, unitId, round, name }`，
       //     一回合后的**轮末**结算（与冷枪同一条 `endTurn` 链路，见 Game.tickEmperor）。
       aimCharges: pair(0), emperorMark: pair(null),
+      // ★★ 「暗枪」（2026-10-05 用户拍板）：又是一层**独立状态**，同样不塞进上面那几层
+      //   （`s.terrain`／`s.mirrors`／`s.shotAim` 各有自己的既有分支，混进去会牵连无关判定）：
+      //   · `darkMarks`＝场上**已经埋好的**标记格，每项 `{ by, side, row, col, round, name }`
+      //     （`by`＝埋它的槽位、`side`＝它属于哪一队）。它是"埋在地上的枪"，不是"锁住某个单位"——
+      //     与「皇帝」的 `emperorMark`（锁单位、挪开也躲不掉）正好相反：**挪开那一格就躲开了**。
+      //   · `darkPlaced`＝**这一手**已经点掉的格子（与 `flamePlaced` 同一套写法：满 `marks` 格
+      //     或按 Esc 就收手）。它只用来数"这一手点了几格"，不是场上状态。
+      //   ⚠️ 别的角色、别的模式里这两项永远是空的（没有 `darkgun` 技能就没人往里写）。
+      darkMarks: [], darkPlaced: [],
       // ★★ 「打到半血即胜」（章节数据声明，见 Game.phaseWinIfNeeded）：
       //   `phaseWin`＝这一场的演出有没有已经触发过（触发一次就结束这一场，只会是 true）。
       //   ⚠️ 2026-10-03 之后第八章不再声明它了（阶段 1 改回"打空血才算赢"），机制本身保留。
@@ -2475,6 +2949,14 @@ class Game {
     //   ⚠️ 没传 `scene`（老七章、自由对局）时 `s.story` 仍**是** STORY_CHAPTERS 里那个对象本身，
     //      与改动前逐值相同；传了就复制一份再合并，绝不改动 STORY_CHAPTERS 里的原始数据。
     if (s.story && this.storyScene) s.story = { ...s.story, ...this.storyScene };
+    // ★★ 2026-10-05 加地图体系：**这一局用哪张地图，只在这里解算一次**（之后只读 `s.mapId`）。
+    //   解算顺序（两条路互不干扰，所以"在大厅点过浅滩水路"绝不会污染剧情关）：
+    //     · **剧情模式**：用章节自己声明的 `map`（第四章＝`shallows`）；章节没写就是 `default`。
+    //       ⚠️ 剧情模式**忽略**大厅登记的地图——章节的战场是作者定的，不该被大厅选择带跑
+    //         （否则"在选人页点了浅滩、再去打第二章"会得到一张水上的客机）。
+    //     · **自由对局 / 其它**：用大厅登记的地图（`setMap`）；没登记就是 `default`。
+    //   `resolveMapId()` 兜底：认不出的键（打错的网址参数、旧存档）一律退回 `default`，绝不抛错。
+    s.mapId = resolveMapId(options.story ? (s.story?.map || null) : this.requestedMap);
     // ★ 第七章「披着同伴的脸」：**开局敌方那一方就是花京院本人**——
     //   直接把 s.fighters.p2 换成花京院，于是棋子（本体 + 绿色法皇两枚）、数值、技能、头像
     //   全都自动是花京院的，界面不用另写一套"伪装形态"。掉到半血以下再换回本体（见 unmaskIfNeeded）。
@@ -2486,8 +2968,9 @@ class Game {
       const team = teamOf(slot), key = picks[team][slotIndex(slot)];
       s.fighters[slot] = (disguised && team === 'p2') ? FIGHTERS[TEMPERANCE.disguiseAs] : FIGHTERS[key];
       // ★★ 幕级加成（`scene.buff`，用户 2026-10-03 第四条）：第八章阶段 1 那一场霍尔·霍斯**攻击 +4、
-      //   防御 +2**（7→11、2→4）。⚠️ 加成写在**幕**上、并进的是 `s.fighters` 里**这份拷贝**——
-      //   `FIGHTERS.emperor` 的原始数据一个字都没动，所以自由对局里他还是 7／2（见 applySceneBuff）。
+      //   防御 +2** → 7→11、**1→3**（2026-10-05 他的基础防御从 2 降到 1，所以这一场是 3 不是 4；
+      //   幕上那份加成数据照旧是 `def: 2`）。⚠️ 加成写在**幕**上、并进的是 `s.fighters` 里**这份拷贝**——
+      //   `FIGHTERS.emperor` 的原始数据一个字都没动，所以自由对局里他是 7／1（见 applySceneBuff）。
       this.applySceneBuff(slot);
     }
     // 「力量」那一关：猩猩**开局不在场上**，拆完最后一个船体要害才登场（见 STRENGTH.bossSpawn）。
@@ -2520,6 +3003,11 @@ class Game {
     //   ② 挑完点还要把"只走反光点"的那枚棋子（吊死者）挪到一个点上去（开局它就站在镜面上）。
     //   ⚠️ 只在"当前这一幕带 mirrors 旗"时才会撒点（第八章阶段 2）；阶段 1 里它是空数组。
     this.generateMirrors();
+    // ★★ 2026-10-05 用户拍板：**开局摆 N 个可拾取道具**（用户定：2 个，种类随机，见 `spawnItems`）。
+    //   ⚠️ **必须排在 `generateTerrain()` 与 `generateMirrors()` 之后**——判据里要"不压地形、
+    //      不与柱子/反光点/棋子重叠"，得等那些东西都摆完才知道哪些格子是空的。
+    //   ⚠️ 随机数消耗排在最后，所以**地形那一段的随机序列一个字都没动**（见 tests/maps.test.js ①）。
+    this.spawnItems(this.itemRule()?.opening ?? 0);
     // 「力量」那一关：代价从**开局第一回合**就开始了（用户要求"开局时每回合扣 2 血"）。
     // 第一回合是 reset() 里直接设成 p1 的，不会走 enterTurn，所以这里补一次。
     if (this.shipRule()) this.drainShipToll('p1');
@@ -2530,6 +3018,7 @@ class Game {
     this.roster = null;   // 席位只对"这一局"有效，下一局重新登记（免得剧情战莫名带上 2v2）
     this.control = null;  // 控制表同理：已经收敛进 s.control，下一局重新登记
     this.storyScene = null; // ★ 幕同理：已经合并进 s.story
+    this.requestedMap = null; // ★ 地图同理：已经收敛进 s.mapId，下一局重新登记（免得上局的图跟着跑）
     return true;
   }
 
@@ -2633,7 +3122,9 @@ class Game {
 
     const s = this.s;
     const spot = s.units.find(u => u.side === 'p2' && u.kind === 'user');   // 站哪儿就还在哪儿
-    const at = spot ? { row: spot.row, col: spot.col } : { row: 5, col: 9 };
+    // 兜底（正常情况下走不到）：棋子不在场上时让他从**棋盘正中央**现身——
+    // ⚠️ 2026-10-05 棋盘放大后这里原来写死的 (5,9) 已经不是中央了，改由 COLS/ROWS 算。
+    const at = spot ? { row: spot.row, col: spot.col } : { row: MID_ROW, col: COLS >> 1 };
     s.units = s.units.filter(u => u.side !== 'p2');
     if (s.selectedId?.startsWith('p2-')) s.selectedId = null;
     s.fighters.p2 = target;
@@ -2832,7 +3323,11 @@ class Game {
   /** ★ 同伴＝**同一个角色槽位**里的另一枚棋子（本体 ↔ 替身）。
    *  2v2 时同一队的另一个角色**不是**同伴：连携距离只在同一个角色的两枚棋子之间算。 */
   partner(u) { return this.s.units.find(x => x.slot === u.slot && x !== u); }
-  occupant(t) { return t ? this.s.units.find(u => u.row === t.row && u.col === t.col) || this.pillarAt(t) : null; }
+  /** 这一格上站着谁（单位优先、其次宝石柱／船体要害）；空格一律返回 `null`。
+   *  ⚠️ 末尾那个 `|| null` 是 2026-10-04 补的：以前"格子是空的"返回的是 `undefined`、而"格子不存在"
+   *     返回 `null`，同一个函数两种空值；让路那件事（`removeFallenSlot`）之后"空格"变成很常见的结果，
+   *     统一成 `null` 之后判据与断言都能直接写 `occupant(t) === null`（内部读它的地方全是真值判断，不受影响）。 */
+  occupant(t) { return t ? this.s.units.find(u => u.row === t.row && u.col === t.col) || this.pillarAt(t) || null : null; }
   pillarAt(t) { return this.s.pillars.find(p => p.row === t.row && p.col === t.col); }
   fireAt(t) { return this.s.fire.find(f => f.row === t.row && f.col === t.col); }
   /** 某个角色的宝石柱（**按槽位**记：柱子给的是"摆柱子那个角色"的加成与回血）。
@@ -2841,27 +3336,46 @@ class Game {
   pillarsOf(key) { return this.s.pillars.filter(p => (p.slot ? p.slot === key : p.side === key)); }
   isRock(t) { return this.s.terrain[tileKey(t)] === 'rock'; }
   adjRock(t) { return this.near(t).some(n => this.isRock(n)); }
-  distLimit(side) { return this.fighter(side)?.distLimit ?? RULE.distLimit; }
+  distLimit(side) {
+    // ★★ 道具「连携」（用户拍板）：连携距离 +1，**只按角色槽位记账**——
+    //   所以它改的正是这条既有的"本体与替身距离上限"，`reachable()` / `moveReason()` / 界面那一栏一起吃到。
+    return (this.fighter(side)?.distLimit ?? RULE.distLimit) + this.itemBuffs(side).dist;
+  }
 
   /** 该单位是否被藤蔓缠住（按单位记录，本体与替身分别计算）。 */
   vined(u) { return !!(u && this.s.vine?.[u.id]); }
   /** 被缠住时的实际移动距离，界面与判定共用。
-   *  海面关卡（arena:'sea'）里，**玩家方（p1）站在水里**时再 −RULE.waterMovePenalty；
+   *  水域地图（地图特性 `features.water`）里，被 `slowedTeams` 列到的队**站在水里**时再 −移动惩罚；
    *  判定时机是「**开始移动那一刻**」（用户 2026-09-15 规定）——所以起点在甲板上就不减，哪怕这一趟走进水里。 */
   moveRange(u) {
     if (!u) return 0;
-    const water = this.inWater(u) && teamOf(u.slot) === 'p1' ? RULE.waterMovePenalty : 0;
+    const water = this.inWater(u) && this.waterSlows(teamOf(u.slot)) ? this.waterPenalty() : 0;
     // 拆要害的代价之一：移动 −1（拆掉第 1、2 个时生效，全拆完恢复）
     const ship = this.shipPenalty(teamOf(u.slot)).move;
-    return Math.max(0, (u.move || 0) - (this.vined(u) ? RULE.vineMovePenalty : 0) - water - ship);
+    // ★★ 道具「疾风」（用户拍板）：移动 +1（本局永久，按角色槽位记账）——加在**基础移动**上，
+    //    于是藤蔓 −1、水里 −1、拆船 −1 那些惩罚照旧照算（互不冲突）。
+    const items = this.itemBuffs(u.slot).move;
+    return Math.max(0, (u.move || 0) + items - (this.vined(u) ? RULE.vineMovePenalty : 0) - water - ship);
   }
-  /** 这一局有没有水（只有海面关卡有）。 */
-  wateryArena() { return this.s.story?.arena === 'sea'; }
-  /** 某个格子是不是水（棋盘中央那块 4×5 的甲板上不算水）。**渲染层也用它，只有这一处判定。** */
+  /**
+   * 这一局的地图**有没有水**（＝地图特性里有没有 `water`；只有水域地图有）。
+   * ⚠️ 2026-10-05 起判据从"剧情章节的 arena 是不是 'sea'"改成"**当前地图有没有水域特性**"——
+   *    行为逐值不变（第四章用的就是浅滩水路地图），但自由对局现在也能选到这张图。
+   *    渲染层用它决定要不要铺水与木甲板（见 ui/render.js 的 drawSea）。
+   */
+  wateryArena() { return !!this.map().features?.water; }
+  /** 水里起步的移动惩罚（地图数据；数值的唯一来源仍是 `RULE.waterMovePenalty`）。 */
+  waterPenalty() { return this.map().features?.water?.movePenalty ?? 0; }
+  /** 这一队在水里会不会被减速（地图数据 `slowedTeams`；只有玩家方，水生替身不受影响）。 */
+  waterSlows(team) { return (this.map().features?.water?.slowedTeams || []).includes(team); }
+  /** 水上地图的**居中甲板矩形**；不是水域地图就是 null。唯一口径在 rules.js 的 `deckRectOf()`。 */
+  deckRect() { return deckRectOf(this.map()); }
+  /** 某个格子是不是水（甲板那条带子上不算水）。**渲染层也用它，只有这一处判定。** */
   isWaterTile(t) {
-    if (!this.wateryArena() || !t) return false;
-    return !(t.row >= SEA_DECK.rowStart && t.row <= SEA_DECK.rowEnd
-      && t.col >= SEA_DECK.colStart && t.col <= SEA_DECK.colEnd);
+    const deck = this.deckRect();
+    if (!deck || !t) return false;
+    return !(t.row >= deck.rowStart && t.row <= deck.rowEnd
+      && t.col >= deck.colStart && t.col <= deck.colEnd);
   }
   /** 某个单位是不是站在水里。 */
   inWater(u) { return !!u && this.isWaterTile(this.tile(u)); }
@@ -2908,7 +3422,8 @@ class Game {
    * 合法＝**不贴边**（离每条边至少 `margin` 格）、**不重叠**、**不压特殊地形**
    *（岩石／草丛／恢复点／毒沼，也就是 `s.terrain` 里有东西的格子）、**不压棋子与柱子**。
    * ⚠️ 只在这一章生效（别的章节直接返回，`s.mirrors` 保持空数组）。
-   * ⚠️ 挑不满 `count` 个就**不硬塞**（有多少算多少）；正常情况中场有 70 格，一定挑得满 4 个。
+   * ⚠️ 挑不满 `count` 个就**不硬塞**（有多少算多少）；18×13 的棋盘上 margin=2 划出的中场有
+   *    (18−4)×(13−4) = **126 格**，扣掉地形与棋子也一定挑得满 4 个。
    */
   generateMirrors() {
     const rule = this.mirrorRule();
@@ -3170,6 +3685,166 @@ class Game {
     return fired;
   }
 
+  // ================= 剧情 boss「皇帝」：暗枪 =================
+  // ★★ 2026-10-05 用户拍板（数值见 SKILLS.darkgun，**不许改**）：
+  //    不消耗 AP、每回合一次，一次在**射程内连着点两个格子**埋枪；
+  //    **对手回合结束时**，踩在标记格上的敌方单位各挨 **8 点伤害（按常规结算防御）**，
+  //    结算完标记清空；标记期间对手看得见、能躲（**挪开那一格就躲开了**）。
+  //   ⚠️ 与「皇帝」的区别（用户定，两者都要）：皇帝锁的是**单位**（挪开也躲不掉）、
+  //      一回合之后结算、吃 1 AP；暗枪锁的是**格子**、对手回合结束就结算、不吃 AP。
+  //   ⚠️ 与「场边冷枪」的区别：冷枪是**幕上的 `sniper` 旗标机制**（自动、每 2 回合、真实伤害），
+  //      暗枪是**技能**（玩家/AI 自己放、计防御）。两条路互不干扰，一个字节都没动冷枪那一段。
+  //   ⚠️ 一切按数据走（`this.skills(slot)` 里有没有 `darkgun`），**不写角色名**。
+
+  /**
+   * 「暗枪」的可标记格子清单：射程内的所有格子。
+   * ⚠️ 与 `placement()` **刻意不同**：被棋子占着的格子**照样能标**——那一格恰恰是最常见的靶子，
+   *    而 `placement()`（火焰／宝石柱用）会把有人的格子滤掉，所以这里不读它、自己算一遍。
+   * ⚠️ 已经标过的格子要排掉（这一手的两个位置不能重复；上一手还没结算的标记也不重复埋）。
+   */
+  darkgunTiles(u) {
+    if (!u) return [];
+    const range = SKILLS.darkgun.range;
+    return this.tiles.filter(t => hexDist(this.tile(u), t) <= range && !this.darkgunMarked(t));
+  }
+  /** 这一格是不是已经埋过暗枪了（**这一手**点的两格 ∪ 场上还没结算的标记）。 */
+  darkgunMarked(t) {
+    if (!t) return false;
+    const s = this.s, key = tileKey(t);
+    return (s.darkPlaced || []).some(x => tileKey(x) === key)
+      || (s.darkMarks || []).some(m => m.row === t.row && m.col === t.col);
+  }
+  /**
+   * 单个格子的合法性（界面高亮、格子说明、AI 选格、真人点击四处共用这一份）。
+   * 口径只有两条（用户定）：**两格不能重复**、**都要在射程内**。
+   */
+  darkgunTileReason(u, t) {
+    if (!u) return '请先选择己方单位。';
+    if (!t) return `请选择 ${SKILLS.darkgun.range} 格内的一个格子。`;
+    if (this.darkgunMarked(t)) return '这一格已经标过了 · 两个位置不能重复';
+    if (hexDist(this.tile(u), t) > SKILLS.darkgun.range) {
+      return `目标超出射程 · 最远 ${SKILLS.darkgun.range} 格`;
+    }
+    return '';
+  }
+  /** 「暗枪」整条技能的可用性（在单格判据之外，再加上 AP／冷却／技能归属）。 */
+  darkgunReason(u, t) {
+    const actor = this.actorReason(u);
+    if (actor) return actor;
+    const reason = this.skillReason(u, 'darkgun');
+    if (reason) return reason;
+    return this.darkgunTileReason(u, t);
+  }
+  /**
+   * 「暗枪」的伤害：**按常规结算防御**（`SKILLS.darkgun.dmg` 减去目标**当前**防御，最低 1）。
+   * ⚠️ 与 `preview(u, tgt, 'darkgun')` 的口径**必须一致**（预览与实际结算对不上就是骗玩家）：
+   *    两边都含「伪装」那 −2 减伤，也**都不吃「瞄准」的无视防御**（用户定：按常规结算防御）。
+   * ⚠️ 防御按**结算那一刻**的站位算（草丛／邻石／贴柱都会跟着变）——暗枪标的是"哪一格"，
+   *    不是"哪个人"，所以谁踩上来就算谁的账。
+   */
+  darkgunDamage(tgt) {
+    if (!tgt || tgt.kind === 'pillar') return 0;
+    const disguised = !this.s.disguiseUsed[tgt.slot] && this.skills(tgt.slot).includes('disguise');
+    return Math.max(1, SKILLS.darkgun.dmg - this.defense(tgt).total - (disguised ? SKILLS.disguise.cut : 0));
+  }
+  /**
+   * 结算那一刻站在 `t` 上的**敌方**单位（`side` ＝ 埋枪那一方的队别）。
+   * ⚠️ 判据里带 `slotAlive`：倒下的角色不再挨枪。**只打敌人**——自己人站在标记格上一点事都没有
+   *    （用户明确要求："标记到自己人身上也不伤自己人"）。
+   */
+  darkgunVictim(t, side) {
+    if (!t) return null;
+    return this.s.units.find(u => u.row === t.row && u.col === t.col
+      && u.side !== side && this.slotAlive(u.slot)) || null;
+  }
+  /**
+   * 埋下一格暗枪（真人点击与 AI 走的是**同一条路**，照「火焰道路」的 `place()` 那套写法）。
+   *   · **第一格**落地就结算费用与冷却（`cost: 0`＝不扣 AP；`cd: 1`＝这一回合不能再埋）；
+   *   · 点满 `SKILLS.darkgun.marks` 格（2 格）就自动收手，中途可按 Esc 提前收手
+   *     （已经埋下的标记**不会撤销**，与火焰那套口径一致）；
+   *   · 每次落地都报一条日志，界面上立刻就能看见。
+   */
+  darkgunMark(u, t) {
+    const s = this.s, key = 'darkgun';
+    if (s.phase !== 'battle') return this.fail('对局尚未开始或已结束。');
+    if (s.pendingSkill !== key) return this.fail(`请先选择「${SKILLS.darkgun.name}」。`);
+    const actor = this.actorReason(u);
+    if (actor) return this.fail(actor);
+    if (s.selectedId !== u.id) return this.fail(`请使用当前正在埋${SKILLS.darkgun.name}的使者。`);
+    // ⚠️ 与 `place()` 同一处取舍：第一格才查 `skillReason`（它包含 AP／冷却），
+    //    后面那几格只查"这一格能不能标"——否则第二格会被"刚刚才进的冷却"顶掉。
+    const committed = s.darkPlaced.length > 0;
+    const reason = committed ? this.darkgunTileReason(u, t) : this.darkgunReason(u, t);
+    if (reason) return this.fail(reason);
+    if (!committed) {
+      s.ap[u.slot] -= SKILLS.darkgun.cost;
+      s.cd[u.slot][key] = SKILLS.darkgun.cd;
+      s.stats[u.slot].skills++;
+      this.emit('skill', { side: u.side, unit: u.id, fighter: u.fighter, skill: key,
+        label: SKILLS.darkgun.name, cry: 'DARK GUN' });
+    }
+    // ★ 标记记的是**格子**（不是单位）：谁在那时候踩上来谁挨枪，`side` 定住"这是哪一方的枪"。
+    s.darkMarks.push({ by: u.slot, side: u.side, row: t.row, col: t.col, round: this.roundNumber(), name: u.name });
+    s.darkPlaced.push(t);
+    this.emit('place', { side: u.side, unit: u.id, tile: t, skill: key,
+      text: `${SKILLS.darkgun.name} → ${tileLabel(t)} · ${s.darkPlaced.length}/${SKILLS.darkgun.marks} 格` });
+    if (s.darkPlaced.length >= SKILLS.darkgun.marks) this.finishDarkgun();
+    else this.notice(`「${SKILLS.darkgun.name}」已标下第 ${s.darkPlaced.length} 个位置。再点一格埋好第二个（两格都不能重复、都要在 ${SKILLS.darkgun.range} 格内）。`);
+    this.touch();
+    return true;
+  }
+  /** 收手（点满两格、按 Esc、或回合结束时都会走到这里）。已经埋下的标记照旧生效。 */
+  finishDarkgun() {
+    if (this.s.phase !== 'battle' || this.s.pendingSkill !== 'darkgun') return false;
+    const count = this.s.darkPlaced.length;
+    this.clearSelection();
+    this.notice(count >= SKILLS.darkgun.marks
+      ? `「${SKILLS.darkgun.name}」已埋好两个位置 —— 对手回合结束时，踩在那两格上的敌方单位各受 ${SKILLS.darkgun.dmg} 点伤害（计防御）。`
+      : count ? `「${SKILLS.darkgun.name}」只埋了 ${count} 格：已埋下的标记照旧生效，对手回合结束时结算。`
+        : `已取消${SKILLS.darkgun.name}，没有消耗行动点。`);
+    return true;
+  }
+  /** 场上正在进行中的暗枪标记（渲染、状态标签、格子说明共用这一份）：带 `tile` 的标记清单。 */
+  darkgunMarks() {
+    const s = this.s || {};
+    return (s.darkMarks || []).map(mark => ({ ...mark, tile: this.at(mark.row, mark.col) }))
+      .filter(entry => entry.tile);
+  }
+  /**
+   * 「暗枪」的结算：**对手回合结束时**（用户原话"在对方回合结束时"）。
+   *   参数 `ending` ＝ 刚刚结束的那个槽位（`endTurn()` 里的 `previous`）。
+   *
+   *   口径：
+   *     · 只结算**不属于 `ending` 那一队**的标记（埋枪方自己回合结束时不结算）；
+   *     · 踩在标记格上的**敌方**单位各挨一发 `darkgunDamage()`（**走 `damage()`，计防御**），
+   *       格子上没人就是**打空**（＝躲开了），不掉血；
+   *     · 结算完那一批标记**全部清空**（用户要求"结算完标记清空"）；
+   *     · 埋枪的人自己倒下了**不影响**这一下（枪已经埋在地上了，与皇帝"枪已经开出去了"同一取舍）。
+   *   ⚠️ `damage()` 只扣血、不判胜负，所以调用点必须紧挨着 `checkEnd()`（与冷枪／皇帝同一处口径）。
+   */
+  tickDarkgun(ending = this.s.turn) {
+    const s = this.s, marks = s.darkMarks || [];
+    if (!marks.length) return 0;
+    const team = teamOf(ending);
+    const firing = marks.filter(m => m.side !== team);
+    if (!firing.length) return 0;
+    s.darkMarks = marks.filter(m => m.side === team);   // ★ 结算完标记清空（只清要结算的那一批）
+    let hits = 0;
+    for (const mark of firing) {
+      const tile = this.at(mark.row, mark.col);
+      const victim = this.darkgunVictim(tile, mark.side);
+      if (!victim) {
+        this.emit('status', { side: mark.side, tile, text: `${SKILLS.darkgun.name} · ${tileLabel(tile)} 上没有人 · 这一枪埋空了` });
+        continue;
+      }
+      this.damage(victim, this.darkgunDamage(victim), { side: mark.side, slot: mark.by, source: SKILLS.darkgun.name });
+      hits++;
+    }
+    this.emit('status', { side: team, text: hits ? `${SKILLS.darkgun.name}结算完毕 · ${hits} 处标记命中，标记已清空` : `${SKILLS.darkgun.name}结算完毕 · 标记已清空` });
+    this.touch();
+    return hits;
+  }
+
   // ================= 剧情 boss「力量」：整艘船就是这个替身 =================
   // ⚠️ 这一关的规则**不靠技能**，全靠场地：boss 是个单棋子的猩猩，替他出手的是这艘船。
   //    所以下面这些方法都只读 s.story.ship，普通对局与其它章节一律不受影响。
@@ -3221,8 +3896,18 @@ class Game {
     this.s.hatred = Math.max(0, this.s.hatred - rule.hatredDecay);
     this.emit('status', { side: 'p2', text: `你住了手 · 憎恨降到 ${this.s.hatred}/${rule.hatredMax} · 人偶攻击力 +${this.s.hatred * rule.hatredAtkBonus}` });
   }
-  /** 当前该用哪张场地背景：**优先用中途覆盖值**（拆船推进阶段会改它），否则用章节指定的。 */
-  arenaKey() { return this.s.arenaOverride || this.s.story?.arena || null; }
+  /**
+   * 当前该用哪张**场地背景图**（见 ui/assets.js 的 `ARENAS`），`null` ＝ 用默认深色底。
+   *
+   * 三个来源，**顺序就是这个优先级**：
+   *   ① `arenaOverride`＝**中途覆盖值**（第五章拆掉一个船体要害就推进一层，见 advanceShip）；
+   *   ② `story.arena`＝**章节指定的场地**（第二章 plane、第五章 ship-deck……）；
+   *   ③ `map().arena`＝**地图自带的配套背景**（浅滩水路 → 'sea'）——
+   *      ★★ 2026-10-05 加地图体系时新增的这一档：自由对局选了地图，背景就跟着地图走。
+   *      ⚠️ 它是**兜底**而不是覆盖：章节写了 arena 就听章节的（所以第四章仍然由数据里的
+   *        `arena:'sea'` 决定背景，与改动前逐值一致；而它恰好和地图自带的那张是同一张）。
+   */
+  arenaKey() { return this.s.arenaOverride || this.s.story?.arena || this.map().arena || null; }
   /** 某一方还剩几个完好的船体要害（普通对局恒为 0）。 */
   shipParts(side = 'p2') { return this.pillarsOf(side).filter(p => p.part); }
   /** 这个目标是不是「被钢壁护着」——要害没拆完之前，本体打不到。
@@ -3573,7 +4258,13 @@ class Game {
     return true;
   }
   standBonus(side) { return Math.max(0, (this.fighter(side)?.standDefBonus ?? RULE.standDefBonus) - this.s.traumaCut[side]); }
-  damageBonus(u) { return (u.kind === 'stand' ? this.pillarsOf(u.slot).length : 0) + this.swordBonus(u); }
+  damageBonus(u) {
+    // ★★ 道具「力量」（用户拍板）：攻击 +2（本局永久，按角色槽位记账）。
+    // ⚠️ 加在**这里**是刻意的：`preview()` 的普攻/飞刀那两条与 `unitAttack()` 都读它，
+    //    所以"界面预览显示的数字"与"实际结算伤害"必然一致（`attack()` 直接用 `pv.damage`）；
+    //    而柱子 +1 与精湛剑术 +1 也走这一处——三者的口径完全一样，没有另造一套。
+    return (u.kind === 'stand' ? this.pillarsOf(u.slot).length : 0) + this.swordBonus(u) + this.itemBuffs(u.slot).atk;
+  }
   /** 绿宝石柱（以及第五章的「船体要害」）的护体防御。
    *  ★ 2026-10-03 用户改动：**贴着一根就给 +1，不再按根数叠加**（旧写法是"贴几根加几点"）。
    *  「己方」＝**同一队**（2v2 时队友贴着你的柱子也吃得到）。
@@ -3624,19 +4315,224 @@ class Game {
   }
   bladeLineIsClear(u, tgt) { return this.bladeTargets(u).includes(tgt); }
 
+  /**
+   * 「力量」那一关在船舱里：**不撒野外地形**（船内部不该长出草丛和毒沼），
+   * 场上的隔板与要害由 setupShip() 铺，剩下的交给"船体变形"动态改变。
+   *
+   * ★★ 2026-10-05 加地图体系：**撒哪些元素、各撒几块，全部读当前地图的 `terrain` 数据**
+   *    （见 rules.js 的 `MAPS`）。判据仍然只有这一处，`default` 地图走的就是改动前那一条路：
+   *      · 元素与数量＝地图 `terrain` 表里的基线 × **面积比**（`当前格数 ÷ TERRAIN_BASE_AREA`），
+   *        所以 18×13 上 default 仍是 岩石 9 / 草丛 6 / 恢复点 3 / 毒沼 3（逐值一致）；
+   *      · 合法格＝**不与任何单位的出生点相邻**（`hexDist > 1`）**且不是地图特性地面**
+   *        （甲板这类"人造地面"不长野外地形；default 没有这种格子，所以候选集与改动前完全相同）；
+   *      · 从合法格里**随机挑**（洗牌算法与随机数消耗顺序一个字没改）。
+   */
   generateTerrain() {
-    // 「力量」那一关在船舱里：**不撒野外地形**（船内部不该长出草丛和毒沼），
-    // 场上的隔板与要害由 setupShip() 铺，剩下的交给"船体变形"动态改变。
     if (this.shipRule()) return;
     const spawn = this.s.units.map(u => this.tile(u));
-    const open = this.tiles.filter(t => spawn.every(st => hexDist(st, t) > 1));
+    const open = this.tiles.filter(t => spawn.every(st => hexDist(st, t) > 1) && !this.featureGround(t));
     for (let i = open.length - 1; i > 0; i--) {
       const j = Math.min(i, Math.floor(this.random() * (i + 1)));
       [open[i], open[j]] = [open[j], open[i]];
     }
-    for (const [type, count] of [['rock', 6], ['bush', 4], ['heal', 2], ['hazard', 2]]) {
+    // 数量按面积等比放大（见 rules.js 的 TERRAIN_BASE_AREA 那段说明）：18×13 时是 岩石 9 / 草丛 6 / 恢复点 3 / 毒沼 3
+    const ratio = (COLS * ROWS) / TERRAIN_BASE_AREA;
+    for (const [type, base] of Object.entries(this.map().terrain || {})) {
+      const count = Math.max(base, Math.round(base * ratio));
       for (let i = 0; i < count; i++) this.s.terrain[tileKey(open.pop())] = type;
     }
+  }
+  /**
+   * 这一格是不是**地图特性铺出来的地面**（目前只有水域地图的甲板：2026-10-05 用户拍板后是
+   * **横跨左右全宽、厚 3 行、垂直居中**的一条带子，18×13 上是行 5~7、共 54 格）。
+   * 用途只有一处：`generateTerrain()` 不往甲板上撒野外地形（甲板是"船上的木地板"，
+   * 不该长出礁石与毒沼）。没有特性地面的地图（default）恒为 false，所以那条撒法一字未动。
+   * ⚠️ 判据仍然只有"在不在 `deckRect()` 里"这一条，**与甲板多大无关**——甲板改宽改窄它自动跟着走。
+   */
+  featureGround(t) {
+    const deck = this.deckRect();
+    if (!deck || !t) return false;
+    return t.row >= deck.rowStart && t.row <= deck.rowEnd
+      && t.col >= deck.colStart && t.col <= deck.colEnd;
+  }
+
+  /* ============================== 可拾取的道具 ==============================
+   * ★★ 2026-10-05 用户拍板（数值与出场规则见 rules.js 的 `ITEM_TYPES` / `ITEM_RULE`）。
+   * ⚠️ 这一段的**判据只在这几个方法里**，别在别处再写一份"能不能放道具 / 捡到加什么"。
+   */
+
+  /** 道具规则：这一局开不开、开几个（读**当前地图**的 `items`；`null` ＝ 这张图没有道具）。 */
+  itemRule() { return resolveItemRule(this.map()); }
+  /** 这一格上的道具（没有就是 `null`）。 */
+  itemAt(t) { return t ? this.s.items.find(item => item.row === t.row && item.col === t.col) || null : null; }
+  /**
+   * 某个槽位从道具拿到的**永久加成**（按角色槽位记账）。没有道具时返回那份冻结的空值。
+   * ⚠️ 四个数值的**生效点**（都要接在既有口径上，别另造一套）：
+   *   · `atk` → `damageBonus()`（于是 `preview()` 与 `unitAttack()` 一起吃到，预览与实际结算永远一致）；
+   *   · `def` → `baseDefense()`（草丛／岩石／柱子那些照旧叠加）；
+   *   · `move` → `moveRange()`（受水域 −1、藤蔓 −1 之类也不冲突）；
+   *   · `dist` → `distLimit()`（就是"本体与替身距离上限"那条既有的判据）。
+   */
+  itemBuffs(slot) { return this.s.itemBuffs?.[slot] || NO_ITEM_BUFF; }
+  /**
+   * **双方出生点** ＝ 按摆位表（`deploySpot`）算出来的开局格，**与棋子现在站在哪无关**。
+   * 用途只有一处：道具「开局离出生点至少若干格」这条判据（别让谁一开局就白捡）。
+   */
+  spawnTiles() {
+    const twoSided = this.s.slots.length > 2;
+    return this.s.slots.flatMap(slot => {
+      const f = this.s.fighters[slot];
+      if (!f) return [];
+      return (f.stand ? ['user', 'stand'] : ['user'])
+        .map(kind => deploySpot(slot, f, kind, twoSided))
+        .map(spot => this.at(spot.row, spot.col)).filter(Boolean);
+    });
+  }
+  /**
+   * 这一格是不是第五章「力量」里**会翻转的隔板位**（钢壁 ⇄ 空地，见 `tickBulwarks`）。
+   * 用途只有一处：`itemSpots()` 不往这些格子上放道具（否则变形会把它"砌进墙里"）。
+   * 别的章节 `shipRule()` 是 null，恒为 false。
+   */
+  bulwarkSlot(t) {
+    const slots = this.shipRule()?.bulwarkSlots;
+    return !!t && !!slots && slots.some(slot => slot.row === t.row && slot.col === t.col);
+  }
+  /**
+   * ★★ 道具落点的**合法格池**——判据**只有这一处**（开局与刷新共用）。合法＝
+   *   · **不贴边**（离棋盘每条边至少 `edge` 格；由 COLS/ROWS 算，别写死行列）；
+   *   · **不压地形**（岩石／草丛／恢复点／毒沼，也就是 `s.terrain` 里有东西的格子）；
+   *   · **不压甲板**（地图特性铺出来的"人造地面"，与 `generateTerrain()` 避开的是同一批判据）；
+   *   · **不落在会变形的隔板位上**（第五章「力量」：`bulwarkSlots` 那几格会在钢壁与空地之间翻转，
+   *     道具落在那儿会被"砌进墙里"——虽然翻回来又拿得到，但读起来别扭，所以一开始就不放那儿）；
+   *   · **不与任何棋子／柱子／反光点／已有道具重叠**；
+   *   · **避开锚点若干格**（`spawn + 1` 格以内都不放）：开局锚点＝双方出生点、刷新锚点＝场上所有棋子。
+   *
+   * ⚠️ **水域是可以放道具的**（这是对"不压甲板/水域"那条要求的一处**有意取舍**，理由实测过）：
+   *    浅滩水路这张图**除甲板以外全是水**，两条同时成立时一个合法格都挑不出来
+   *    （实测 1v1 `pool = 0`）——那样用户要的"两张地图都开道具"就直接落空了。
+   *    所以口径定为"**甲板不压**（甲板是'人造地面'，与地形撒法避的是同一批格子）、
+   *    **水面上可以漂着道具**"：水里捡同样要付"水里起步移动 −1"那份代价，地图特性一点没被绕开。
+   * ⚠️ 挑不满就**不硬塞**（返回的池子里有几个算几个，调用方照 `Math.min` 取）——绝不会抛错。
+   */
+  itemSpots({ edge = null, spawn = null, from = null } = {}) {
+    const rule = this.itemRule();
+    if (!rule) return [];
+    const margin = edge ?? rule.edge, gap = spawn ?? rule.spawn;
+    const anchors = from || this.spawnTiles();
+    return this.tiles.filter(t => {
+      if (t.row < margin || t.row > ROWS - 1 - margin) return false;
+      if (t.col < margin || t.col > COLS - 1 - margin) return false;
+      if (this.s.terrain[tileKey(t)]) return false;
+      if (this.featureGround(t)) return false;
+      if (this.bulwarkSlot(t)) return false;
+      if (this.occupant(t) || this.pillarAt(t)) return false;
+      if (this.mirrorAt(t)) return false;
+      if (this.itemAt(t)) return false;
+      return anchors.every(anchor => hexDist(anchor, t) > gap);
+    });
+  }
+  /** 加权随机取一种道具（认不出的种类与 ≤0 的权重都不算）。池子为空时返回 `null` 且**不消耗随机数**。 */
+  pickItemType() {
+    const weights = Object.entries(this.itemRule()?.weights || {});
+    const total = weights.reduce((sum, [, weight]) => sum + weight, 0);
+    if (!(total > 0)) return null;
+    let roll = this.random() * total;
+    for (const [type, weight] of weights) {
+      roll -= weight;
+      if (roll < 0) return type;
+    }
+    return weights.at(-1)[0];
+  }
+  /**
+   * 在合法空地上摆 `count` 个道具（洗牌挑格、加权挑种类，随机源与既有的 `generateTerrain` / `generateMirrors` 同一个）。
+   * ⚠️ 三条口径：
+   *   ① `max` 这道闸也在这里守着：最多补到 `max` 个（场上满了就一个都不刷）；
+   *   ② **地毯式挑选**：池子空了（无处可放）就停在原地，不崩、不硬塞到不该放的格子上；
+   *   ③ 只有**中途刷新**（`announce:true`）才写一句战斗记录；开局那两个是静默摆好的
+   *      （界面靠棋盘上的图标与图例说明，开局不该先刷两条日志）。
+   */
+  spawnItems(count = 1, { spawn = null, from = null, announce = false } = {}) {
+    const rule = this.itemRule();
+    if (!rule || count <= 0) return [];
+    const room = Math.min(count, rule.max - this.s.items.length);
+    if (room <= 0) return [];
+    const pool = this.itemSpots({ spawn, from });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.min(i, Math.floor(this.random() * (i + 1)));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    const out = [];
+    for (const t of pool.slice(0, Math.max(0, room))) {
+      const type = this.pickItemType();
+      if (!type) break;
+      const item = { id: `item-${this.epoch}-${t.row}-${t.col}`, type, name: ITEM_TYPES[type].name,
+        row: t.row, col: t.col, turn: this.s.turnNumber };
+      this.s.items.push(item);
+      out.push(item);
+      if (announce) {
+        this.emit('status', { side: null, tile: t, text: `${ITEM_TYPES[type].name}道具落在 ${tileLabel(t)} · 走上去就能捡走` });
+      }
+    }
+    return out;
+  }
+  /**
+   * **回合刷新**：每 `everyTurns` 个回合在空地补 1 个（上限 `max`）。
+   * ⚠️ 时钟是 `s.turnNumber`（`enterTurn()` 只在这一处加 1），所以"第 3、6、9…个回合"各补一次；
+   *    刷新时的锚点是**场上所有棋子**（离谁都至少 2 格），免得凭空送到谁脚底下。
+   */
+  tickItems() {
+    const rule = this.itemRule();
+    if (!rule || !(rule.everyTurns > 0)) return [];
+    if (this.s.turnNumber % rule.everyTurns !== 0) return [];
+    if (this.s.items.length >= rule.max) return [];
+    return this.spawnItems(1, { spawn: rule.refreshClear, from: this.s.units.map(u => this.tile(u)).filter(Boolean), announce: true });
+  }
+  /**
+   * ★★ **走上去就捡走**（`move()` 落点结算的最后一步，与 `applyTerrain()` 同一处）：
+   *   格子清空 → 加成**按角色槽位**立刻生效 → 写进战斗记录（措辞照既有 `status` 那一套）。
+   * ⚠️ 三条别写歪：
+   *   ① 「连携」对**没有替身棋子**的角色（数据判据 `fighter.stand` 在不在，不按角色名）**改成移动 +1**；
+   *   ② 「时间」是**当场 +1 行动点**（不进加成表）——而捡它本身要走上那一格（移动扣 1 AP），
+   *      所以净账是"这一趟移动不花行动点"，绝不会凭空把行动点顶到超过本回合开始时那个数；
+   *   ③ 返回**被捡走的那件道具**（界面/调用方据此改提示语），没捡到就是 `null`。
+   */
+  pickItem(u) {
+    const tile = this.tile(u), item = this.itemAt(tile);
+    if (!item) return null;
+    const def = ITEM_TYPES[item.type];
+    this.s.items = this.s.items.filter(x => x !== item);
+    this.touch();
+    if (!def) return item;                         // 认不出的种类：只把格子清空，绝不抛错
+    const slot = u.slot;
+    // 保险：万一这个槽位不在记账表里（非正常路径），就地补一份空的，绝不在捡东西时抛错
+    const buffs = this.s.itemBuffs[slot] || (this.s.itemBuffs[slot] = { ...NO_ITEM_BUFF });
+    const { key, amount } = this.itemEffect(def, slot);
+    if (key === 'ap') this.s.ap[slot] += amount;   // 一次性：当场生效，不记账
+    else buffs[key] += amount;                     // 永久：按槽位记账，本体与替身一起吃
+    this.emit('status', { side: slot, unit: u.id, tile, text: this.itemPickupText(item, u) });
+    return item;
+  }
+  /**
+   * 这一件道具对某个槽位**实际**加到哪本账上（含用户点名的"连携对单单位角色改成移动 +1"那条口径）。
+   * ⚠️ 判据是**数据**（`FIGHTERS.xxx.stand` 在不在），**不按角色名硬编码**；
+   *    拾取、文案、AI 估价三处都调它，所以"改了什么"与"说成什么"不可能对不上。
+   */
+  itemEffect(def, slot) {
+    const solo = def.buff === 'dist' && !this.fighter(slot)?.stand;
+    const eff = solo ? (ITEM_TYPES[def.soloFallback] || def) : def;
+    return { key: eff.buff, stat: eff.stat, amount: eff.amount, grab: eff.grab, solo };
+  }
+  /** 捡到某件道具之后提示语该写什么（与战斗记录同一条口径，界面只负责显示）。 */
+  itemPickupText(item, u) {
+    const def = ITEM_TYPES[item?.type];
+    if (!def) return '';
+    const { stat, amount, solo } = this.itemEffect(def, u?.slot);
+    return `${u?.name || '棋子'} 捡到「${def.name}」· ${stat} +${amount}（${def.duration}）${solo ? ' · 这个角色没有替身棋子，改记成移动 +1' : ''}`;
+  }
+  /** 这一件道具对某个槽位值多少分（**AI 走位评分**用；口径与拾取效果同一处，别在 ai.js 里另写一份）。 */
+  itemGrabValue(item, slot) {
+    const def = ITEM_TYPES[item?.type];
+    return def ? this.itemEffect(def, slot).grab || 0 : 0;
   }
 
   /** Paths and reachability use the same BFS; only the final tile has a tether limit. */
@@ -3687,8 +4583,9 @@ class Game {
   }
   targets(u, range = u?.range || 0) {
     if (!u || !range) return [];
-    // ⚠️ 2v2 里"已经倒下的角色"留在棋盘上（看得见"他倒在这儿了"），但**不再是可攻击目标**，
-    //    否则会白花 AP 去打一具尸体。1v1 时血量归零就直接结算了，这条永远走不到。
+    // ⚠️ 2026-10-04 起：倒下的角色**棋子已经离场**（见 `removeFallenSlot`），所以这里其实
+    //    筛不到什么；留着这道判据是为了兜住"血量被别处改成 0"这种非正常路径（旧口径：2v2 里
+    //    倒下的角色留在棋盘上但不再是目标——那套取舍已被用户推翻）。1v1 归零就直接结算了。
     return [...this.s.units, ...this.s.pillars]
       .filter(t => t.side !== u.side && hexDist(this.tile(u), this.tile(t)) <= range)
       .filter(t => t.kind === 'pillar' || this.slotAlive(t.slot));
@@ -3720,9 +4617,12 @@ class Game {
     const u = this.unit(id), reason = this.actorReason(u);
     if (reason) return this.fail(reason);
     if (this.s.pendingSkill === 'flame' && this.s.flamePlaced.length) this.finishFlame();
+    // ★ 暗枪同理：换人之前先把这一手收干净（已埋下的标记照旧留在场上，见 finishDarkgun）。
+    if (this.s.pendingSkill === 'darkgun' && this.s.darkPlaced.length) this.finishDarkgun();
     this.s.selectedId = id;
     this.s.pendingSkill = null;
     this.s.flamePlaced = [];
+    this.s.darkPlaced = [];
     this.s.action = 'move';
     this.checkTimeWindow();
     this.notice(`${u.name}已就绪。选择落点或目标；Esc 取消选择。`);
@@ -3731,9 +4631,12 @@ class Game {
   cancel() {
     if (this.s.phase !== 'battle') return false;
     if (this.s.pendingSkill === 'flame' && this.s.flamePlaced.length) return this.finishFlame();
+    // ★ 暗枪的 Esc：与火焰那套一致——"提前收手"，把这一手结束掉（已埋的标记不会撤销）。
+    if (this.s.pendingSkill === 'darkgun' && this.s.darkPlaced.length) return this.finishDarkgun();
     if (this.s.pendingSkill) {
       this.s.pendingSkill = null;
       this.s.flamePlaced = [];
+      this.s.darkPlaced = [];
       this.notice('已取消瞄准，未消耗行动点。');
     } else {
       this.s.selectedId = null;
@@ -3746,13 +4649,21 @@ class Game {
     this.s.selectedId = null;
     this.s.pendingSkill = null;
     this.s.flamePlaced = [];
+    // ★ 暗枪这一手点过的格子也一起清掉。⚠️ 它只是"这一手"的记账，**不是**场上的标记：
+    //   场上的标记在 `s.darkMarks` 里，不会被这里清掉（要等对手回合结束才结算／清空）。
+    this.s.darkPlaced = [];
     this.s.action = 'move';
   }
   chooseAction(action) {
     if (!this.selected) return this.fail('请先选择己方单位。');
     if (this.s.pendingSkill === 'flame' && this.s.flamePlaced.length) return this.fail('请先完成已开始的火焰铺设。');
+    // ★ 暗枪：埋到一半就去点"移动／普攻"，第二个位置会留在半空中，所以照火焰那条口径拦住。
+    if (this.s.pendingSkill === 'darkgun' && this.s.darkPlaced.length) {
+      return this.fail(`请先埋好第二个${SKILLS.darkgun.name}位置（Esc 可以提前收手）。`);
+    }
     if (action === 'attack' && !this.selected.range) return this.fail('替身使者无法普通攻击；请选择替身。');
     this.s.pendingSkill = null;
+    this.s.darkPlaced = [];
     this.s.action = action === 'attack' ? 'attack' : 'move';
     this.notice(action === 'attack' ? '选择红色标记中的敌方目标。' : '选择带三角标记的落点。');
     return true;
@@ -3767,6 +4678,9 @@ class Game {
       if (this.s.pendingSkill === 'drag') return this.drag(clicked);
       // ★「皇帝」：点一个敌方单位＝锁定它（延迟一回合结算），走的是和扬沙／拖入水下同一条"选目标"分支。
       if (this.s.pendingSkill === 'emperor') return this.emperorLock(clicked);
+      // ★★「暗枪」：点的是**格子**（不是单位）——被棋子占着的格子照常能标，
+      //   所以这一支排在下面那条 `place()`（它只认空格）**之前**，而且传的是 `t` 不是 `clicked`。
+      if (this.s.pendingSkill === 'darkgun') return this.darkgunMark(u, t);
       if (['emerald', 'flame'].includes(this.s.pendingSkill)) return this.place(u, t);
       if (clicked) return this.attack(u, clicked, this.s.pendingSkill);
       return this.fail('请选择射程内的敌人或敌方宝石柱，Esc 取消瞄准。');
@@ -3819,9 +4733,16 @@ class Game {
     }
     this.emit('move', { unit: u.id, side: u.side, from, path: travelled, text: `${u.name} → ${tileLabel(this.tile(u))} · 消耗 1 AP` });
     if (s.hp[u.slot] > 0) this.applyTerrain(u);
+    // ★★ 道具：**走上去就捡走**（与 `applyTerrain()` 同一处结算：落点上的地形效果与道具一起生效）。
+    //   ⚠️ 只在"这一步真的走成了"之后调用——被拒的移动在 `moveReason()` 就 return 了，捡不到东西。
+    const picked = s.hp[u.slot] > 0 ? this.pickItem(u) : null;
     this.checkEnd();
     this.checkTimeWindow();
-    if (s.phase === 'battle') this.notice(s.ap[u.slot] ? `移动完成，剩余 ${s.ap[u.slot]} AP。` : '行动点已用完。可使用已就绪的零消耗技能，或结束回合。');
+    if (s.phase === 'battle') {
+      // 捡到东西时提示语换成那一条（战斗记录里也照旧有一条 `status`），否则与改动前逐字相同。
+      this.notice(picked ? this.itemPickupText(picked, u)
+        : s.ap[u.slot] ? `移动完成，剩余 ${s.ap[u.slot]} AP。` : '行动点已用完。可使用已就绪的零消耗技能，或结束回合。');
+    }
     return true;
   }
 
@@ -3831,7 +4752,10 @@ class Game {
     if (this.s.armorOff?.[side]) return 0;
     return this.fighter(side).def
       + (this.s.sandGuard?.[side] ? SKILLS.dive.guard : 0)
-      + (this.s.slimeGuard?.[side] ? SKILLS.slime.guard : 0);
+      + (this.s.slimeGuard?.[side] ? SKILLS.slime.guard : 0)
+      // ★★ 道具「护盾」（用户拍板）：基础防御 +1（本局永久，按角色槽位记账）——
+      //    加在**基础防御**上，于是草丛 +3、邻石 +1、柱子 +1 那些照旧照常叠加。
+      + this.itemBuffs(side).def;
   }
   /** 剑术被动：卸甲期间每次攻击 +1、最多 +3；加成永久保留，穿回装甲后依然生效。 */
   swordBonus(u) {
@@ -3894,6 +4818,9 @@ class Game {
           // ★「皇帝」（霍尔·霍斯）：固定 10 点，**按常规结算防御**（下面那条 pierce 不认它）。
           //   预览要能显示这一下——真人瞄准与 AI 选招读的都是这个数。
           : skill === 'emperor' ? SKILLS.emperor.dmg
+          // ★★「暗枪」：固定 8 点，**按常规结算防御**（与「皇帝」同一条通道，
+          //    所以下面那条 `pierce` 也要把它排除在外——用户定："8 点按常规结算防御"）。
+          : skill === 'darkgun' ? SKILLS.darkgun.dmg
           : skill === 'blade' ? u.dmg + this.swordBonus(u) + RULE.bladeBonus + story
             // 吸盘突袭（暗蓝之月）：攻击力 +3；目标正在【溺水】时再 +2
             : skill === 'sucker' ? u.dmg + SKILLS.sucker.bonus
@@ -3902,7 +4829,10 @@ class Game {
     // 波纹疾走与扬沙都是真实伤害：无视草丛、岩石、宝石柱与基础防御。
     // ★★ 「瞄准」（霍尔·霍斯）：生效期间**他打出去的每一击**也走同一条通道（防御全部归零）。
     //    ⚠️「皇帝」自己那一下**不吃**这个（用户定：皇帝按常规结算防御）——所以它被排除在外。
-    const pierce = ['hamon', 'sandblast'].includes(skill) || (skill !== 'emperor' && this.aimPierce(u));
+    //    ★★「暗枪」同理：用户定的也是"8 点按常规结算防御"，所以**不消耗**「瞄准」的次数、
+    //       也**不吃**它的无视防御（`spendAim` 只在普攻那条路上调用，这里根本不经过那一支）。
+    const pierce = ['hamon', 'sandblast'].includes(skill)
+      || (!['emperor', 'darkgun'].includes(skill) && this.aimPierce(u));
     const rawDefense = pierce
       ? { base: 0, stand: 0, bush: 0, rock: 0, pillar: 0, total: 0 } : this.defense(tgt, skill);
     // ★★ 「穿甲」（`u.armorPierce`，全项目只有吊死者身上有）：**只把防御那个数往下调 2、下限 0**，
@@ -3940,7 +4870,17 @@ class Game {
     return { attack, defense, damage, hp, hpAfter, lethal, heal, miss, dealt,
       wins: tgt.kind === 'pillar' ? false : lethal };
   }
+  /** 这一下**实际**能回多少血（治疗点上限、灼烧减半都算在内）。
+   *  ★★ 2026-10-04：**归零的角色不会被治疗回来**——"出局就是出局"（见 `removeFallenSlot`）。
+   *  正常流程里根本走不到这一条：治疗都发生在活着的角色身上（自己的回合开始、自己踩到恢复点、
+   *  自己放涅槃/吸血），而那些路径本来都先看过 `slotAlive`。它挡的是下面这条**窄路**：
+   *  时停的额外回合（`endTurn()` 里那句 `enterTurn(previous)`）会给"刚在自己回合里被打倒的那一位"
+   *  再结算一次**绿宝石柱每回合回血 / 水下呼吸**——不拦的话，一个共享生命 0、场上又已经没有棋子的
+   *  角色会被拉回 1 点以上：他打不着、也打不死，这一局就再也收不了尾了。
+   *  ⚠️ 判据放在**这里**（治疗量的唯一出口）而不是 `heal()` 里：`heal()` 自己会按 `actual` 决定
+   *     要不要记账/报事件，于是"回 0"天然等于"什么都没发生"；界面与 AI 读的也是同一个数。 */
   healAmount(side, amount) {
+    if (!this.slotAlive(side)) return 0;
     return Math.max(0, Math.min(this.fighter(side).hp - this.s.hp[side], this.s.burn[side] ? Math.ceil(amount / 2) : amount));
   }
   heal(side, amount, source, unit) {
@@ -3971,6 +4911,10 @@ class Game {
           if (side && side !== owner) this.s.stats[slot || side].damage += extra;
           this.emit('hit', { side, targetSide: owner, unit: tgt.id, tile: this.tile(tgt), amount: extra, terrain: true,
             text: `拆开${tgt.name} → 船体耐久 · −${extra} HP` });
+          // 这一条走的**不是**"单位被打"那条路，所以"血量归零 ⇒ 场上没有他的棋子"要在这里自己补一次
+          // （见 `removeFallenSlot`）。今天是个**空操作**：第五章的猩猩是"要害全拆完才登场、登场即满血"
+          // （`spawnShipBoss` 那句 `s.hp.p2 = f.hp`），所以这截耐久扣不出一个"在场却归零"的槽位。
+          if (this.s.slots.includes(owner)) this.removeFallenSlot(owner);
         }
       }
       if (tgt.hp === 0) {
@@ -4009,6 +4953,13 @@ class Game {
     //   ⚠️ 2026-10-03 之后**没有任何一幕**声明 phaseWin 了（第八章阶段 1 改回正常胜负），
     //      所以这里通常是个空操作；机制代码保留，等以后有别的幕要用。
     this.phaseWinIfNeeded(tgt);
+    // ★★ 被打倒 → **棋子离场、让出格子**（2026-10-04 用户要求，见 `removeFallenSlot`）。
+    //   ⚠️ 必须排在上面那两道**会把血改回去**的判定**之后**（`unmaskIfNeeded` 重置满血、
+    //      `phaseWinIfNeeded` 夹血到 1）——只有它们都放行，"血量归零"才算真的倒下。
+    //      `removeFallenSlot` 自己会再判一次 `slotAlive`，所以顺序写反也拦得住，但别靠它兜。
+    //   ⚠️ 又必须排在 `storyLossIfNeeded` **之前**（见下）：万一这一击同时触发剧情演出，提示里
+    //      留着的该是剧情那一条——`removeFallenSlot` 自己那条 notice 被它顶掉正是我们要的顺序。
+    this.removeFallenSlot(tgt.slot);
     // ★★ **必败剧情战**（章节数据 `scene.storyLoss`，用户 2026-10-03 第四条）：
     //   第八章阶段 1 里**波鲁纳雷夫掉到半血以下**就是这一场的终点——触发演出 → `checkEnd()`
     //   判**玩家战败**。放在这里（`damage()` 内部、调用方的 `checkEnd()` 之前）的理由与上面那条相同：
@@ -4109,6 +5060,10 @@ class Game {
     //   （界面高亮、AI 选招读的都是这里，照 `blade` 那条的写法）。
     if (key === 'emperor' && !this.targets(u, SKILLS.emperor.range)
       .some(t => t.kind !== 'pillar' && this.slotAlive(t.slot))) return '射程内没有可锁定的敌人';
+    // ★★「暗枪」：射程内一个能标的格子都没有时（理论上只会在棋盘被塞满时发生），
+    //   同样不要给出一个"点了才报错"的假可选。⚠️ 它**不要求**射程内有敌人——
+    //   暗枪标的是格子，空地上也能提前埋（AI 那边另有"没有敌人就不埋"的取舍，见 ai.js）。
+    if (key === 'darkgun' && !this.darkgunTiles(u).length) return '射程内没有可标记的格子';
     return '';
   }
   skillStatus(side, key, u = null) {
@@ -4139,6 +5094,16 @@ class Game {
           ? `已瞄准 · 接下来 ${s.aimCharges[side]} 次攻击无视对手防御（草丛／岩石／宝石柱也不算）`
           : `接下来 ${sk.charges} 次攻击无视对手防御（用一次减一次）`)
       : key === 'emperor' ? `射程 ${sk.range} 格 · 锁定一个单位，一回合后结算 ${sk.dmg} 点伤害（计防御 · 躲不掉）${this.emperorMarks().length ? ` · 场上已有 ${this.emperorMarks().length} 处锁定` : ''}`
+      // ★★「暗枪」：状态栏要能一眼看出"这一手标了几格 / 场上还剩几处没结算"。
+      //   口径取自数据（`sk.dmg` / `sk.marks` / `sk.range`），界面里不手写数值。
+      : key === 'darkgun' ? (() => {
+          const marks = this.darkgunMarks();
+          const mine = marks.filter(m => m.by === side).length;
+          const target = `对手回合结束时踩在上面受 ${sk.dmg} 点伤害（计防御）`;
+          if (mine) return `${sk.name}已标记 ${mine} 格 · ${target}${mine < sk.marks ? ` · 还能再标 ${sk.marks - mine} 格` : ''}`;
+          if (marks.length) return `射程 ${sk.range} 格 · 一次标 ${sk.marks} 格，${target} · 场上已有 ${marks.length} 处标记`;
+          return `不消耗行动点 · 在 ${sk.range} 格内连着点两个格子埋枪，${target}`;
+        })()
       : key === 'knife' ? `射程 ${sk.range} 格 · 伤害 = 自身攻击力${this.timeExtraTurn(side) ? ' · ⚡时停额外回合：不占冷却（伤害不变）' : ''}`
       : key === 'blaze' ? `清除 ${s.fire.length} 格 · 恢复 ${this.healAmount(side, s.fire.length * RULE.blazeHealPerTile)} HP`
         : key === 'slime' ? (s.slimeGuard[side]
@@ -4166,6 +5131,7 @@ class Game {
     const reason = this.skillReason(u, key), s = this.s;
     if (reason) return this.fail(reason);
     if (s.pendingSkill === 'flame' && s.flamePlaced.length) return this.fail('请先完成已开始的火焰铺设。');
+    if (s.pendingSkill === 'darkgun' && s.darkPlaced.length) return this.fail(`请先埋好第二个${SKILLS.darkgun.name}位置（Esc 可以提前收手）。`);
     if (key === 'armor') {
       // 双形态切换：装甲 ⇄ 卸甲。SKILLS.armor.cd=2 即用户口径的「CD 1 回合」：
       // 切换后的下个自己回合不能再切，隔一个回合才能切回来（口径见 rules.js 顶部说明）
@@ -4262,6 +5228,7 @@ class Game {
     s.selectedId = u.id;
     s.pendingSkill = key;
     s.flamePlaced = [];
+    s.darkPlaced = [];
     s.action = 'skill';
     this.notice(['emerald', 'flame'].includes(key) ? `${SKILLS[key].name}：选择带菱形标记的空格。首格落地才消耗 AP。`
       : key === 'vine' ? `${SKILLS.vine.name}：选择 ${SKILLS.vine.range} 格内的一名敌人，施加"移动 −${RULE.vineMovePenalty}"。Esc 取消。`
@@ -4269,6 +5236,9 @@ class Game {
       : key === 'drag' ? `${SKILLS.drag.name}：选择 ${SKILLS.drag.range} 格内的一名敌人，把它拖进水里（每回合结束受 ${SKILLS.drag.drownDmg} 点真实伤害，持续 ${SKILLS.drag.drownTurns} 回合）。Esc 取消。`
       // ★「皇帝」：说的是"锁一个单位（本体或替身都行）"，不是"打一下就完"——提示要写清延迟与计防御。
       : key === 'emperor' ? `${SKILLS.emperor.name}：选择 ${SKILLS.emperor.range} 格内的一个敌方单位（本体或替身都行，宝石柱不行）锁定它——一回合之后结算 ${SKILLS.emperor.dmg} 点伤害（按常规结算防御，躲不掉）。Esc 取消。`
+      // ★★「暗枪」：点的是**格子**（连着点两个），不是"选一个单位"——提示要写清这一点，
+      //    否则玩家会像用「皇帝」那样去找棋子点。花费是 0 AP，所以提示里不再提行动点。
+      : key === 'darkgun' ? `${SKILLS.darkgun.name}：在 ${SKILLS.darkgun.range} 格内连着点两个格子埋枪（两格不能重复；被棋子占着的格子也能标）。不消耗行动点，对手回合结束时踩在标记格上的敌方单位各受 ${SKILLS.darkgun.dmg} 点伤害（按常规结算防御）。Esc 提前收手。`
       : key === 'blade' ? `${SKILLS[key].name}：只能命中同一直线上（最多 ${SKILLS[key].range} 格）的第一个敌人，岩石与宝石柱会挡下剑刃。Esc 取消。`
         : `${SKILLS[key].name}：选择 ${SKILLS[key].range} 格内的敌人或宝石柱。Esc 取消。`);
     return true;
@@ -4279,7 +5249,8 @@ class Game {
     if (reason) return reason;
     if (!tgt || ![...this.s.units, ...this.s.pillars].includes(tgt)) return '目标已经离开战场。';
     if (u.side === tgt.side) return '不能攻击己方单位。';
-    // 2v2：已经倒下的角色不能再被打（他的棋子还留在场上当障碍，但不是目标）
+    // 2v2：已经倒下的角色不能再被打（2026-10-04 起他的棋子已经**离场**了，见 `removeFallenSlot`；
+    // 这一条兜住"血量被别处改成 0、棋子还在"的非正常路径）
     if (tgt.kind !== 'pillar' && !this.slotAlive(tgt.slot)) return '这个角色已经倒下了，不能作为目标。';
     // 「力量」那一关：船体要害没拆完之前，本体被钢壁护着打不到。
     // ⚠️ 判定必须放在 attackReason 里（而不是 attack 里）：界面高亮、AI 选招都读它，
@@ -4515,6 +5486,9 @@ class Game {
       }
     }
     this.checkTimeWindow();
+    // ★★ 道具：**每 `everyTurns` 个回合在空地补 1 个**（上限 `max`，满了就不再刷）。
+    //   放在 `enterTurn()` 的最后：此刻 `turnNumber` 已经是新回合的号，所以"第 3、6、9…"各补一次。
+    this.tickItems();
   }
   endTurn() {
     const s = this.s;
@@ -4524,6 +5498,8 @@ class Game {
     // 先清掉旗标；下面若又跳过了对手的回合，会再把它置位（见 skipSide 那段）。
     s.timeExtra[previous] = false;
     if (this.s.pendingSkill === 'flame') this.finishFlame();
+    // ★ 暗枪：回合结束时把"这一手"收干净（已埋下的标记照旧留在场上等对手回合结束结算）。
+    if (this.s.pendingSkill === 'darkgun') this.finishDarkgun();
     this.tickBurn(previous);
     this.tickDrown();
     // 「力量」那一关：回合结束时，还完好的船体要害会夹击 1 格内的敌方单位
@@ -4534,6 +5510,10 @@ class Game {
     // ★★ 霍尔·霍斯的「皇帝」同理：**一回合之后的轮末**才结算（判据、位置与冷枪完全一致），
     //   ⚠️ 它**不是**章节机制，任何拥有 `emperor` 技能的对局都要跑，所以**不挂在 sniperRule 上**。
     if (this.roundEnding()) this.tickEmperor();
+    // ★★ 「暗枪」：**对手回合结束时**结算（用户原话），所以它不挂 `roundEnding()`——
+    //   刚结束的那个回合只要不属于埋枪那一方，埋在地里的枪就落地（`tickDarkgun(previous)`）。
+    //   位置与冷枪／皇帝完全一致（扣血系之后、`checkEnd()` 之前），所以它打出的伤害照常判胜负。
+    this.tickDarkgun(previous);
     if (this.checkEnd()) return true;
     s.timeReady[previous] = false;
     this.clearSelection();
@@ -4548,6 +5528,9 @@ class Game {
       this.emit('skip', { side: skipped, text: `${slotName(skipped)} 的行动已被时停跳过` });
       this.tickBurn(skipped);
       this.tickDrown();   // 被跳过的那个回合同样「结束了」，溺水照掉（口径见 tickDrown）
+      // ⚠️ 暗枪同理：被时停跳过的那一个回合也**确实结束了**，所以埋在地里的枪照常落地
+      //    （与上面 `tickBurn(skipped)`／`tickDrown()` 同一条口径）。
+      this.tickDarkgun(skipped);
       if (this.checkEnd()) return true;
       s.timeReady[skipped] = false;
       // ★ 接下来这个回合就是"时停给的额外回合"（飞刀在这一回合里不占冷却，伤害不变）。
@@ -4656,14 +5639,17 @@ class Game {
           : pending === 'emperor' ? (t.kind !== 'pillar' && !this.emperorReason(u, t))
           : pending === 'hamon' ? (t.kind !== 'pillar' && !this.attackReason(u, t, pending))
             : !this.attackReason(u, t, pending)) : [],
-      placeTiles: ['flame', 'emerald'].includes(pending) ? this.placement(u) : [],
+      // ★★「暗枪」点的是**格子**（被棋子占着的格子也能标），所以它自己走一条清单；
+      //    `placement()` 只认空格，拿它来高亮会把最该标的那些格子全滤掉。
+      placeTiles: pending === 'darkgun' ? this.darkgunTiles(u)
+        : ['flame', 'emerald'].includes(pending) ? this.placement(u) : [],
       range: u ? (pending ? SKILLS[pending].range || 0 : u.range) : 0,
       bladeTiles: u && pending === 'blade' ? BLADE_DIRS.flatMap(dir => this.bladePath(u, dir)) : [],
     };
   }
 }
 
-return {RULE, FIGHTERS, SKILLS, STORY_CHAPTERS, STRENGTH, EBONY, TEMPERANCE, MIRRORS, SNIPER, SEA_DECK, skillSetFor, playableFighters, isBoss, teamOf, slotIndex, slotName, otherSide, Game};
+return {RULE, FIGHTERS, SKILLS, STORY_CHAPTERS, STRENGTH, EBONY, TEMPERANCE, MIRRORS, SNIPER, MAPS, DEFAULT_MAP_ID, resolveMapId, mapList, deckRectOf, SEA_DECK, skillSetFor, playableFighters, isBoss, ITEM_TYPES, ITEM_RULE, resolveItemRule, teamOf, slotIndex, slotName, otherSide, Game};
 })();
 
 // ===== src/core/ai.js =====
@@ -4683,12 +5669,47 @@ const nearest = (tile, targets) => Math.min(...targets.map(t => hexDist(tile, t)
 const FLEE = { base: 18, perTile: 3 };
 
 /**
+ * ★★ 2026-10-04 用户要求③（本次改版）：远程角色的「拉扯」——`kite: true` **数据旗标**
+ * （见 rules.js：霍尔·霍斯 / 乔瑟夫 / 花京院本体与绿色法皇，全项目只有这四个单位）。
+ *
+ * 目标行为（用户原话）："尽量站在敌人够不着的地方出手"——能打就打，但优先选择
+ * **"在（或接近）自己最大射程、同时位于敌人威胁范围之外"**的落点；敌人逼近时**往后撤**再打。
+ *   · `base`：撤退这一手本身值多少。要**刚好压过"随手打一下"**（7 攻打 2 防 ≈ 20 分），
+ *     也要压过霍尔自己那两个技能的当轮价值（瞄准 48 / 皇帝 40）——"敌人逼近时**先撤再打**"，
+ *     而不是站在人家的射程里对射；但又要**远低于**攻击计划里"当场就能打死"的那 1000 分
+ *     （能收掉对手时照常出手）；
+ *   · `fire`：撤过去**还够得着人**（＝"我打得着、他打不着"的那个距离带）额外加分——
+ *     "撤到安全处却打不着"远不如"撤到射程边缘还能开火"；
+ *   · `edge`：离**自己的最大射程**每近一格扣一点（`gap - range`，射程上刚好是 0）——
+ *     于是它会挑"踩在射程边缘"的落点（典型放风筝站位），而不是一味往后退。
+ * ⚠️ 这三个数只作用于 kite 单位，别的角色一点都读不到（走位评分与改动前逐值一致）。
+ */
+const KITE = { base: 60, fire: 8, edge: 2 };
+
+/**
+ * ★★ 2026-10-05 用户拍板：「暗枪」（`SKILLS.darkgun`）在 AI 手里的两个常数。
+ *   · `rate`：这一枪"能扣多少血"折算成多少分——`darkgunDamage(目标) × rate`。
+ *     它是**额外的一记伤害、而且不花行动点**（`cost: 0`），所以按攻击计划那一套口径不打折；
+ *     但落点由对手自己决定（他走开就空了），所以也不给溢价。
+ *   · `second`：第二个位置的那点加成——"多埋一格"本身不值钱（对手不踩就是 0），
+ *     只当"这一手确实埋满了两个位置"的一点点补贴。
+ *   ⚠️⚠️ 上限定死在这里：**两个数加起来必须让暗枪压在「瞄准」那一档之下**——
+ *     `tests/emperor-skills.test.js` ⑤ 用一处摆好的局面钉着"值得瞄的时候 AI 先开「瞄准」"
+ *     （那一档最高 48 分 ＝ 16 + 4×8，防御越厚越接近它）。暗枪在那种局面里最多
+ *     `(8 − 2) × 4 + 4 = 28` 分，所以顶不掉它；而皇帝自己打一下（攻击 7 打 2 防 ＝ 20 分）
+ *     又略低于暗枪（24 分）——"免费的那一枪先埋、AP 照旧留着打人"，这就是这一条的设计意图。
+ *   ⚠️ 只作用于**拥有 darkgun 技能**的槽位，别的角色一个数都读不到。
+ */
+const DARKGUN = { rate: 4, second: 4 };
+
+/**
  * One bounded decision. The caller schedules it; stale timers never own game state.
  *
  * ★ 2v2：`s.turn` 是**槽位**（`'p1b'`），不是队别。所以：
  *   · 自己人＝`u.slot === side`（同一个角色的本体 + 替身，**不含同队另一个角色**）；
  *   · 敌人＝`u.side !== teamOf(side)`（队别才管"打谁"），并且跳过已经倒下的角色
- *     （他们的棋子还留在场上，但不是目标，也不该把 AI 引过去）。
+ *     （★ 2026-10-04 起倒下的角色**棋子已经离场**，见 `Game.removeFallenSlot`，所以这里通常
+ *     直接就读不到他们了；那道 `slotAlive` 判据留着兜住"血量被别处改成 0"的非正常路径）。
  *   ⚠️ 1v1 下 `slot === side === team`，下面每一处都与改动前逐值等价（别改成按队别取棋子：
  *      那样 2v2 里 AI 会替同队的另一个角色出手，而那个角色本该等它自己的回合）。
  */
@@ -4781,6 +5802,37 @@ function chooseAI(game) {
       // 同一个槽位已经有锁定在飞了：再锁一次只是把它顶掉（等于白花 1 AP）
       if (s.emperorMark?.[target.slot]) score -= 20;
       plans.push({ type: 'emperor', unit: gunner, target, score });
+    }
+  }
+  // ★★ 霍尔·霍斯｜「暗枪」（2026-10-05 用户拍板，数值见 SKILLS.darkgun）。
+  //   口径（用户定，别改成别的）：
+  //     · **只挑"敌方棋子当前所在的那一格"当第一格**——射程里一个敌人都没有就**不埋**
+  //       （用户原话的"没敌人在射程内就正确放弃"；空地上提前埋不算 AI 的活）；
+  //     · 第二格优先挑**另一个敌人在射程内的所在格**（两个敌人就是人手一处），
+  //       只有一个敌人时挑"它最可能踩上去的那一格"＝**紧挨目标、且离枪手更近**的那一格
+  //       （对手朝我们走的方向，也就是他下一步最容易落的地方）；
+  //       这两条都不成立时退到"手边任意一个可标格"——**一定要把两个位置埋满**，不留半手空着
+  //       （埋了一半会让 `beginSkill`／`chooseAction` 一直拦着"先埋好第二个位置"）；
+  //     · **本回合已经用过**（CD）／射程内没有可标的格子 → `skillReason` 直接给理由，这一条不生成。
+  //   ⚠️ 必须守着"不能反复施放"：暗枪 `cost: 0`，如果不看 CD，AI 会在同一回合里
+  //      把它排在最前面反复埋（0 AP 永远"买得起"）——`skillReason` 里的冷却判据就是那道闸。
+  //   ⚠️ 与「瞄准」「皇帝」互不干扰：它是**另一条**计划，不动 `aimCharges`／`emperorMark` 那两本账
+  //      （见 game.js 的 `preview()`：暗枪不吃「瞄准」的无视防御，也不消耗它的次数）。
+  if (gunner && game.skills(side).includes('darkgun') && !game.skillReason(gunner, 'darkgun')) {
+    const me = game.tile(gunner), darkRange = SKILLS.darkgun.range;
+    // 射程**内**、还没被标过、而且是**敌方棋子当前所在**的格子（按"这一枪能扣多少血"从高到低）
+    const prey = foes.map(f => ({ foe: f, tile: game.tile(f) }))
+      .filter(p => p.tile && hexDist(me, p.tile) <= darkRange && !game.darkgunMarked(p.tile))
+      .map(p => ({ ...p, dmg: game.darkgunDamage(p.foe) }))
+      .sort((a, b) => b.dmg - a.dmg);
+    if (prey.length) {                                   // 射程里没敌人 → 这一条压根不生成
+      const free = game.darkgunTiles(gunner);
+      const first = prey[0].tile;
+      const second = prey.slice(1).map(p => p.tile).find(t => !game.darkgunMarked(t))
+        || free.filter(t => hexDist(t, first) === 1).sort((a, b) => hexDist(me, a) - hexDist(me, b))[0]
+        || free.find(t => !game.darkgunMarked(t));
+      plans.push({ type: 'darkgun', unit: gunner, tiles: [first, ...(second ? [second] : [])],
+        score: prey[0].dmg * DARKGUN.rate + (second ? DARKGUN.second : 0) });
     }
   }
   if (!game.skillReason(stand, 'emerald')) {
@@ -4876,6 +5928,31 @@ function chooseAI(game) {
   // 「现在是不是有敌人够得着它」——撤退的开关（口径＝**敌方射程**，见上面第 ① 条）。
   const threatened = !!fleeUnit
     && foes.some(f => hexDist(game.tile(fleeUnit), game.tile(f)) <= (f.range || 0));
+
+  /**
+   * ★★ 2026-10-04 用户要求③（本次改版）：**kite 旗标**（见上面 `KITE`）——远程角色的「拉扯」。
+   * 这里先把"值得撤过去的落点"算出来（每个带旗标的单位一份），走位那一段只认这份表。
+   *
+   * 两道闸门（用户明确要求"绝不能卡死"，参照上面 `flees` 第 ① 条的教训）：
+   *   ① **只有真的被够得着时才撤**：已经站在所有敌人的射程之外时，这一趟撤退没有意义，
+   *      那个单位整份表都不进——它的走位照旧落到下面的既有算法上（该推进就推进）；
+   *   ② **撤过去还得能出手**：只有"**我打得着、他打不着**"的落点真的存在时才优先撤；
+   *      找不到这种落点就**照常行动**。⚠️ 这一条是防死循环的关键：当对手的射程 ≥ 自己的射程时
+   *      （例如乔瑟夫射程 3 打射程 3 的花京院），"我能打、他打不着"的距离根本不存在，
+   *      若还硬要撤，两边就会你退我进地蹭到天荒地老、一颗血都不掉。
+   *   ③ `u.range` 为 0 的单位（**花京院的本体**不能普攻）没有"打得着"这回事，
+   *      它只按第 ① 条撤到够不着的格子里——它不承担输出，站远一点就是它的全部工作。
+   */
+  const foeUnitTiles = foes.map(f => game.tile(f));
+  const kiteTiles = new Map();
+  for (const u of mine) {
+    if (u.kite !== true) continue;
+    if (!foes.some(f => hexDist(game.tile(u), game.tile(f)) <= (f.range || 0))) continue;   // 闸门①
+    const spots = game.reachable(u).filter(t =>
+      foes.every(f => hexDist(t, game.tile(f)) > (f.range || 0))
+      && ((u.range || 0) === 0 || foes.some(f => hexDist(t, game.tile(f)) <= u.range)));
+    if (spots.length) kiteTiles.set(u, new Set(spots.map(tileKey)));                        // 闸门②
+  }
   for (const u of mine) for (const t of game.reachable(u)) {
     const path = game.paths(u).get(tileKey(t));
     const fire = path.some(p => game.fireAt(p)?.side === otherSide(side));
@@ -4891,12 +5968,37 @@ function chooseAI(game) {
       plans.push({ type: 'move', unit: u, target: t, score });
       continue;
     }
+    // ★★ 拉扯（见上面 `KITE`）：这一格是"我打得着、他打不着"的落点 → 优先撤到这里再开火。
+    //   评分按"射程边缘最好"来定（`gap - range`，站在最大射程上是 0，越近越亏），
+    //   所以它挑的是**射程边缘**那一格，而不是一路退回角落。
+    if (kiteTiles.get(u)?.has(tileKey(t))) {
+      const range = u.range || 0;
+      const gap = nearest(t, foeUnitTiles);
+      let score = KITE.base - damage * 2;
+      if (range > 0 && Number.isFinite(gap)) score += KITE.fire + (gap - range) * KITE.edge;
+      if (ty === 'heal') score += game.healAmount(side, RULE.healAmt) * 2.5;
+      plans.push({ type: 'move', unit: u, target: t, score });
+      continue;
+    }
     const gain = u.kind === 'stand' && stand ? (curStand - distance) * 4 : (curUser - distance) * 2;
     let score = gain - damage * 2;
     if (u.kind === 'stand' && stand && distance <= u.range && curStand > u.range) score += 6;
     if (ty === 'heal') score += game.healAmount(side, RULE.healAmt) * 2.5;
     // Small defensive bonuses never outweigh forward progress by themselves.
     if (gain > 0 && ty === 'bush') score += 1;
+    /**
+     * ★★ 2026-10-05 用户拍板：**AI 要学会捡道具**（走位评分里的一条倾向，不是另起一套算法）。
+     * 加分的条件只有一条：**这一格上有道具，而且这一步确实在朝敌人推进**（`distance < 出发时的距离`＝顺路）。
+     *   · 「顺路」这条闸同时管住两件事：**不为道具改道**（横着走、往后撤都不加）、
+     *     于是既不会为了捡东西退开、也不会在道具旁边来回蹭（捡到手格子就空了，不存在来回蹭）；
+     *   · 分值取自数据（`ITEM_TYPES[*].grab` ≤ 6，且「连携」对单单位角色按它实际变成的"移动 +1"折算），
+     *     压在"随手打一下"（普攻一般 ≥ 12 分）之下——**打得着人时照旧先打**，只有顺路且不亏时才顺手拿走；
+     *   · **送死的格子根本进不来**：上面那句 `damage >= s.hp[side]` 已经把"走过去就没了"的落点滤掉了。
+     */
+    const item = game.itemAt?.(t);
+    if (item && Number.isFinite(distance) && distance < (u.kind === 'stand' && stand ? curStand : curUser)) {
+      score += game.itemGrabValue?.(item, side) || 0;
+    }
     if (score > .5) plans.push({ type: 'move', unit: u, target: t, score });
   }
   plans.sort((a, b) => b.score - a.score);
@@ -4915,6 +6017,20 @@ function playAIAction(game, plan = chooseAI(game)) {
   if (type === 'drag') { game.select(unit.id); return game.drag(target); }
   // ★「皇帝」：锁定一个单位（走 select → emperorLock 这条既有链路，与 drag／vine 完全同款）
   if (type === 'emperor') { game.select(unit.id); return game.emperorLock(target); }
+  // ★★「暗枪」：一次埋两格——走 `beginSkill` → `darkgunMark`（与上面「火焰道路」那一支完全同款，
+  //    只是不需要 `select`：`beginSkill` 自己会把选中落在出手者身上）。
+  //    ⚠️ 收尾那句 `finishDarkgun()` 是必须的：万一只埋下一格（第二格被别的东西占掉了），
+  //       `pendingSkill` 会一直挂着 'darkgun'，下一轮 `chooseAI` 里"先埋好第二个位置"那条闸
+  //       会把移动／普攻全拦掉——写在这里收干净，AI 就不会自己把自己卡住。
+  if (type === 'darkgun') {
+    if (!game.beginSkill(unit, 'darkgun')) return false;
+    for (const tile of plan.tiles || []) {
+      if (game.s.pendingSkill !== 'darkgun') break;
+      game.darkgunMark(unit, tile);
+    }
+    if (game.s.pendingSkill === 'darkgun') game.finishDarkgun();
+    return true;
+  }
   if (type === 'breakfree') return game.breakFree(unit);
   if (type === 'place') return game.beginSkill(unit, skill) && game.place(unit, target);
   if (type === 'flame') {
@@ -4977,12 +6093,17 @@ const CHARACTER_ART = {
   //      画好放进来就归零（第八章正式开打前必须补上，否则那个棋子上是占位图形）。
   //   造型依据：用户提供的 `design/review/J凯尔-参考资料-本体-动画截图.png`、
   //   `design/review/吊死者-参考资料-替身-wiki.png`（裹绷带、只露一只眼、握大刀）。
-  geil: { user: 'geil', stand: 'hanged_man', roman: 'J. GEIL', type: '剧情 boss · 镜中杀手', quote: '……', accent: '#9fb3c8', brief: '杀害波鲁纳雷夫妹妹的凶手，两只手都是右手。替身「吊死者」不进路面——它走反光的地方：镜面、金属、水洼，也钻得进岩石与建筑里（只要那块石头没被人占着，它花 1 点行动点就能跳过去，跳多远都行）。本体要贴到 1 格才打得动人；那个裹着绷带、只露出一只眼的替身有 3 格射程、还**自带 2 点穿甲**——挨它一刀，你身上的防御先被削掉 2 点，光靠草丛与石头挡不住它。' },
+  //   ★ 2026-10-04 用户要求②（顺手清理）：`brief` 里那处 `**自带 2 点穿甲**` 的 markdown 星号也去掉了
+  //     （界面上是纯文本，星号会原样显示出来）。**只删星号，措辞与数值一字未动**。
+  geil: { user: 'geil', stand: 'hanged_man', roman: 'J. GEIL', type: '剧情 boss · 镜中杀手', quote: '……', accent: '#9fb3c8', brief: '杀害波鲁纳雷夫妹妹的凶手，两只手都是右手。替身「吊死者」不进路面——它走反光的地方：镜面、金属、水洼，也钻得进岩石与建筑里（只要那块石头没被人占着，它花 1 点行动点就能跳过去，跳多远都行）。本体要贴到 1 格才打得动人；那个裹着绷带、只露出一只眼的替身有 3 格射程、还自带 2 点穿甲——挨它一刀，你身上的防御先被削掉 2 点，光靠草丛与石头挡不住它。' },
   // ★★ 霍尔·霍斯 & 皇帝（第八章阶段 1）。⚠️⚠️ **2026-10-03 第三条用户拍板：他改成了 PvP 可选角色**
   //   （`rules.js` 的 `FIGHTERS.emperor` 去掉了 `boss: true`）——于是他会出现在选人列表里，
   //   这一栏的 `type` 就**不能再写"剧情 boss"**（选人页头部与角色信息栏都会直接显示它，
   //   写成 boss 会与"能选他"自相矛盾）。这里跟着改成其他可选角色那种"定位 · 特点"的写法。
-  emperor: { user: 'hol_horse', stand: null, roman: 'HOL HORSE', type: '远程 · 外圈枪手', quote: '安心吧，我不会打偏的。', accent: '#c8a24a', brief: '替身「皇帝」就是他那把大号左轮——**不单独占棋子**，由他本人开枪（射程 5、攻击 7）。他自己还有两手：「瞄准」让他接下来两次攻击无视你的防御，「皇帝」则锁住一个单位、一回合后照样落下来。他钉在远处放枪、不肯近身，所以这一战真正的麻烦是：你追镜子里那个的时候，背后一直有把枪对着你。' },
+  // ★★ 2026-10-04 用户要求②（任务二）：`brief` 重写成**一句起头的短文案**（原来 143 字、还有一处裸露的
+  //   markdown 星号，界面上会原样显示成 `**不单独占棋子**`）。口径照 jotaro / joseph / kakyoin 那几条：
+  //   **2～3 句、简短、不带任何 markdown**，说清"他是谁 ＋ 射程 5 的枪手 ＋ 两个技能"。
+  emperor: { user: 'hol_horse', stand: null, roman: 'HOL HORSE', type: '远程 · 外圈枪手', quote: '安心吧，我不会打偏的。', accent: '#c8a24a', brief: '替身「皇帝」就是他手上那把大号左轮，由他本人开枪，射程 5。他钉在远处放枪、不肯近身：「瞄准」让接下来两次攻击无视防御，「皇帝」则锁定一个单位，一回合后落下 10 点伤害。' },
 };
 const portrait = key => `assets/out/portraits/${key}.webp`;
 const cutin = key => `assets/out/cutins/${key}.webp`;
@@ -4991,12 +6112,16 @@ const piece = (fighter, kind) => `assets/out/standees/${CHARACTER_ART[fighter][k
 const artKeys = art => [art.user, art.stand].filter(Boolean);
 /**
  * 战斗场地背景：铺在棋盘底下（会再压一层暗色蒙版，保证棋子可读）。
- * 由剧情章节指定——`STORY_CHAPTERS` 里写 `arena: 'plane'`，比如灰塔那一战发生在客机上。
- * 不指定就用默认的深色底。
+ * 指定方式有两条（都是**数据**说了算，别在别处按章节判断）：
+ *   · 剧情章节——`STORY_CHAPTERS` 里写 `arena: 'plane'`，比如灰塔那一战发生在客机上；
+ *   · ★ 地图自带的配套背景（2026-10-05 加地图体系）——`MAPS[地图].arena`，
+ *     比如「浅滩水路」就是 `sea`。自由对局选到那张图，背景就跟着走（见 game.js 的 arenaKey）。
+ * 两条都没指定就用默认的深色底。
  */
 const ARENAS = {
   plane: 'assets/out/arenas/plane.webp',
-  // 第四章：开往新加坡的船上。背景只有海面，**船上甲板是代码画的**（见 render.js 的 SEA_DECK 木甲板）
+  // 海面：第四章（开往新加坡的船上）与地图「浅滩水路」共用这一张。
+  // 背景里只有海，**船上的木甲板是代码画的**（见 render.js 的 drawSea 与 SEA_DECK 木甲板）。
   sea: 'assets/out/arenas/sea.webp',
   // 第五章「力量」：**一艘船分四层**，拆掉一个要害就推进一层（引擎中途换场地，见 game.js 的 arenaKey）
   'ship-deck': 'assets/out/arenas/ship-deck.webp',
@@ -5038,7 +6163,7 @@ return {CHARACTER_ART, portrait, cutin, piece, artKeys, ARENAS, PENDING_ARENAS, 
 // ===== src/ui/render.js =====
 __mods["src/ui/render.js"] = (function(){
 const {hexPath, hexDist, tileKey, drawSlab, drawLabels, drawMoveHint, drawAttackZone, drawSelected, drawTargetRing, CANVAS_W, CANVAS_H, R} = __mods["src/core/hex.js"];
-const {slotName} = __mods["src/core/game.js"];
+const {slotName, ITEM_TYPES} = __mods["src/core/game.js"];
 const {CHARACTER_ART, artKeys, ARENAS, TERRAIN_SKINS, terrainSkinPath, PART_SPRITES} = __mods["src/ui/assets.js"];
 
 /** 场地背景的键名前缀：带这个前缀的不做描边处理，而是单独放进 this.arenas。 */
@@ -5078,6 +6203,55 @@ const terrainSizes = {
   'part-boiler': 54, 'part-column': 54, 'part-winch': 54, 'part-valve': 54,
 };
 const direction = [[1, 0], [0, 1], [-1, 1], [-1, 0], [0, -1], [1, -1]];
+
+/**
+ * ★★ 格内小字与条形的一组度量（**唯一一处**，别在画棋子的那几十行里再写魔数）。
+ *
+ * 为什么 2026-10-05 要动它们：棋盘 14×11 → 18×13 之后，逻辑画布从 877×643 长到 **1106×742**，
+ * 而 `layout.js` 会把画布**缩放到容器里**——于是屏幕上的格子小了约 **13%**（桌面，受高度限制）
+ * 到 **21%**（窄屏，按容器宽度铺满）。字号原样不动的话，"P1 · 主"在桌面上只剩 7 点几像素，
+ * 名字与血条就看不清了。所以格内这几种小字按**同一比例（约 +12%）**放大，并做两件配套的事：
+ *   · 名字那一行改到**裁剪之外**画：尖顶六边形越往下越窄，8.5px 的名字原本就贴着裁剪边，
+ *     放大后两端的笔画必然被切掉。挪到 `g.restore()` 之后 + 补一圈深色描边
+ *     （照 `drawSniperCrosshair` 里「冷枪」两个字的写法），压在任何底图上都读得清；
+ *   · 名字背后那块深色底衬（原来是 ±19 收窄到 ±7 的梯形）跟着加宽到 **±24 → ±10**，
+ *     保证放大后的字仍然落在深底上，而不是飘在格子花纹里。
+ *
+ * ⚠️ 上限是"六边形的宽度"：裁剪半径 r = R−1 = 32，在 dy 处的半宽
+ *   = √3/2×32 = 27.7px（|dy| ≤ r/2 = 16），再往下按 √3×(32−dy) 收窄。
+ *   所以**不能**把名字再放大：dy=25 处只剩 12.1px 半宽，字再宽就会露到格外去。
+ *   `tests/board-size.test.js` 按 R 把这几个量核对回来（含状态小标必须完整落在六边形里），别凭感觉改。
+ */
+const TILE_TEXT = {
+  tagFont: 9.5,        // 棋子名字/身份那一行「P1 · 主」（原 8.5）
+  tagY: 25,            // 那一行相对格子中心的下移量（原 24.5）
+  barW: 36,            // 血条宽（原 34）
+  barH: 2.6,           // 血条高（原 2）
+  barY: 16.5,          // 血条顶边相对格子中心的下移量（原 18；上移是为了给放大后的名字让位）
+  plateTop: 19,        // 名字底衬：顶边（半宽 plateTopHalf，原 19 → 收窄到 7）
+  plateTopHalf: 24,
+  plateBot: 31,        // 名字底衬：底边（半宽 plateBotHalf）
+  plateBotHalf: 10,
+  badgeW: 16,          // 状态小标：**尺寸一个字没动**（16×11 @ cy−19）——
+  badgeH: 11,          //   它是"六边形里塞得下的极限"，再大就会顶到裁剪边（见下面 drawUnit 里的算式）。
+  badgeY: 19,
+  smallFont: 9,        // 状态小标 + 地面上那些小字（镜面／冷枪／皇帝／暗枪／柱名）的字号（原 8）
+};
+
+/**
+ * 格子里那种"贴在底部的小字"：**深色描边 + 彩色填充**（照「冷枪」那一套写法）。
+ * 棋子名字、宝石柱名都用它——所以它一律画在**裁剪之外**，字不会被六边形切掉两端的笔画。
+ */
+function drawTileTag(g, t, text, color, y = TILE_TEXT.tagY) {
+  g.save();
+  g.font = `bold ${TILE_TEXT.tagFont}px sans-serif`;
+  g.textAlign = 'center'; g.textBaseline = 'middle';
+  g.lineWidth = 2.6; g.strokeStyle = 'rgba(10,6,12,.85)';
+  g.strokeText(text, t.cx, t.cy + y);
+  g.fillStyle = color;
+  g.fillText(text, t.cx, t.cy + y);
+  g.restore();
+}
 
 class BoardVisual {
   constructor(game) {
@@ -5180,8 +6354,20 @@ class BoardVisual {
    *    于是两者**永远不相等** → 静态层**每帧重画一次（每秒 60 次）**，
    *    等于缓存完全失效；桌面看不出来，手机上是白白耗电发热。
    *    现在两边都调这个方法，不可能再写岔。
+   * ★★ 2026-10-05 加地图体系：键里再加上**地图键**（`game.mapId()`）。
+   *    水与木甲板是"按地图数据铺的"（`isWaterTile` → 地图的甲板矩形），所以
+   *    **只要地图换了，静态层就必须重画**——光看地形 JSON 与 arena 不足以覆盖这种情况
+   *    （两张地图完全可能用同一个背景、同样的地形格数）。
    */
-  baseStateKey() { return `${JSON.stringify(this.game.s.terrain)}|${this.arenaKey()}`; }
+  baseStateKey() { return `${JSON.stringify(this.game.s.terrain)}|${this.arenaKey()}|${this.game.mapId?.() ?? ''}|${this.itemKey()}`; }
+  /**
+   * ★★ 道具的缓存键（2026-10-05）：静态层（`redrawBase`）里画着道具图标，
+   * 所以"捡走一个 / 刷新一个"必须让静态层重画——只写死"地形 + 场地"的话图标会留在原地。
+   * 键只取"种类 @ 格子"（`id` 里带着 epoch，不适合进缓存键）。
+   */
+  itemKey() {
+    return (this.game.s.items || []).map(item => `${item.type}@${item.row},${item.col}`).join(';');
+  }
   redrawBase() {
     const g = this.bctx, terrain = this.game.s.terrain;
     const arena = this.arenaKey();
@@ -5224,6 +6410,9 @@ class BoardVisual {
       const type = terrain[tileKey(t)];
       if (type) this.drawTerrain(g, t, type);
     }
+    // ★★ 道具（2026-10-05 用户拍板）：画在**地形之后、棋子之前**（棋子压在上面，不会被糊住）。
+    //   它属于"铺在地上的那一层"，所以和地形一样进静态层（缓存键里带着道具，见 itemKey）。
+    for (const item of this.game.s.items || []) this.drawItem(g, this.game.at(item.row, item.col), item);
     drawLabels(g, this.tiles);
     // Delicate corner registration marks, outside all playable hexagons.
     g.strokeStyle = '#9b805855'; g.lineWidth = 1;
@@ -5232,9 +6421,15 @@ class BoardVisual {
     }
   }
   /**
-   * 海面关卡的两层：**水**（甲板以外的全部格子）和中央那块 **4×5 的木甲板**。
-   * 甲板是代码画的（背景图里只有海，没有船）——范围由 rules.js 的 SEA_DECK 决定，
-   * 和「哪里算水、要减速」用的是同一份数据，所以画面和规则不可能对不上。
+   * 水域地图（地图特性 `features.water`）的两层：**水**（甲板以外的全部格子）和画面正中那条 **木甲板**
+   * （2026-10-05 用户拍板后是"全宽、厚 3 行"的一条带子，18×13 上是行 5~7、共 54 格）。
+   * 甲板是代码画的（背景图里只有海，没有船）——范围由 `game.isWaterTile()` 决定（数据来自地图的
+   * 甲板尺寸，见 rules.js 的 `deckRectOf` / `SEA_DECK`），和「哪里算水、要减速」用的是同一份数据，
+   * 所以画面和规则不可能对不上。
+   * ★ 甲板改成全宽带子**不需要改这里的笔法**：② 段的路径是"把甲板格一个个拼起来"、缝线只画在甲板的
+   *   包围盒里（`box`），所以甲板多宽多厚都照旧画得对（这也是当初不去写死 4×5 的原因）。
+   * ⚠️ 2026-10-05 加地图体系之后，这一套**原样复用**给地图「浅滩水路」（第四章也是它）——
+   *    不另画一套风格：换地图只换"哪些格子算水"，笔法一个字都没动。
    */
   drawSea(g) {
     const deck = this.tiles.filter(t => !this.game.isWaterTile(t));
@@ -5310,6 +6505,50 @@ class BoardVisual {
       g.fillStyle = '#c2bc78'; g.beginPath(); g.moveTo(t.cx, t.cy + 18); g.lineTo(t.cx + 3, t.cy + 23); g.lineTo(t.cx - 3, t.cy + 23); g.fill();
     }
   }
+  /**
+   * ★★ 2026-10-05 用户拍板：**可拾取道具的棋盘图标**（种类、颜色与数值见 core/rules.js 的 `ITEM_TYPES`）。
+   *
+   * 三条口径：
+   *   ① **一眼与别的东西分得开**：一枚"深色圆盘托底 + 各自颜色的菱形徽章 + 一个汉字"——
+   *      与地形字形（岩／草／+／毒 那种裸字）、宝石柱（竖立的晶体）、反光点（压扁的椭圆镜面）、
+   *      三种射击预告（圆环＋虚线＋十字准星）在形状与配色上都不同；
+   *   ② **糊不到棋子和名字**：它画在格子中心**偏上**（`cy − 5`）、直径不到格子的六成；
+   *      而且按规则"走上去就捡走"，所以**格子上本来就不会同时站着棋子**（唯一例外是潜沙换位那种
+   *      不走 `move()` 的交换，那时棋子照旧压在图标上面）；
+   *   ③ `save` / `restore` 严格配平（渲染冒烟逐帧比对），而且**不用 16×11 的 `fillRect`**——
+   *      那是状态小标的尺寸，测试靠它数标记数。
+   */
+  drawItem(g, t, item) {
+    if (!t || !item) return;
+    const def = ITEM_TYPES?.[item.type];
+    if (!def) return;
+    const cx = t.cx, cy = t.cy - 5, r = 8.4;
+    g.save();
+    // ① 托底的深色圆盘：把徽章从地砖上"托"起来（有水的地图上照样看得清）
+    g.beginPath(); g.arc(cx, cy, r + 3.2, 0, Math.PI * 2);
+    g.fillStyle = 'rgba(10,8,18,.66)'; g.fill();
+    g.strokeStyle = 'rgba(255,244,224,.28)'; g.lineWidth = 1; g.stroke();
+    // ② 菱形徽章：颜色是这一种道具的"身份证"（五种各不相同）
+    g.beginPath();
+    g.moveTo(cx, cy - r); g.lineTo(cx + r, cy); g.lineTo(cx, cy + r); g.lineTo(cx - r, cy);
+    g.closePath();
+    g.fillStyle = def.color; g.globalAlpha = .94; g.fill(); g.globalAlpha = 1;
+    g.strokeStyle = 'rgba(255,250,238,.9)'; g.lineWidth = 1.4; g.stroke();
+    // ③ 一个汉字（力／盾／风／时／链）：色盲玩家也能靠字认出来
+    g.fillStyle = '#14101d';
+    g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(def.glyph, cx, cy + .5);
+    // ④ 两道向上的小反光：说明"这是能拿走的东西"，不是地面装饰
+    g.strokeStyle = 'rgba(255,246,226,.55)'; g.lineWidth = 1.2;
+    for (const dx of [-3.4, 3.4]) {
+      g.beginPath();
+      g.moveTo(cx + dx, cy - r - 2);
+      g.lineTo(cx + dx, cy - r - 6);
+      g.stroke();
+    }
+    g.restore();
+  }
   boundary(g, tiles, color) {
     const keys = new Set(tiles.map(t => `${t.q},${t.r}`));
     g.save(); g.strokeStyle = color; g.lineWidth = 1.8;
@@ -5344,6 +6583,7 @@ class BoardVisual {
     const flashing = this.stageFlash && now - this.stageFlash.start < this.stageFlash.duration;
     const dynamic = flashing || this.effects.length || this.moves.size || state.shotAim
       || (this.game.emperorMarks?.() || []).length
+      || (this.game.darkgunMarks?.() || []).length
       || (!this.reducedMotion && (view.selected || state.fire.length));
     const stamp = `${this.game.revision}|${view.hover ? tileKey(view.hover) : ''}|${view.inspected?.id}|${view.pointerDown}|${view.keyboard}|${this.baseDrawCount}`;
     if (!dynamic && this.lastDraw === stamp) return;
@@ -5354,7 +6594,7 @@ class BoardVisual {
     const u = view.selected || view.inspected;
     if (u) {
       const range = view.selected ? view.range : u.range;
-      if ((range || view.bladeTiles?.length) && !['emerald', 'flame'].includes(state.pendingSkill)) {
+      if ((range || view.bladeTiles?.length) && !['emerald', 'flame', 'darkgun'].includes(state.pendingSkill)) {
         const zone = view.bladeTiles?.length ? view.bladeTiles
           : this.tiles.filter(t => hexDist(this.game.tile(u), t) > 0 && hexDist(this.game.tile(u), t) <= range);
         g.save(); if (!view.selected) g.globalAlpha = .55;
@@ -5409,6 +6649,12 @@ class BoardVisual {
       const tile = this.game.tile(entry.unit);
       if (tile) this.drawEmperorAim(g, entry.by ? this.position(entry.by, now) : null, tile, time);
     }
+    // ★★ 「暗枪」埋下的标记（2026-10-05 用户拍板）：**换一种颜色（暗紫）**，与上面那两种一眼分得开——
+    //    红色＝冷枪的弹道、金色＝「皇帝」锁定、暗紫＝埋在地上的暗枪。同样**画在棋子之前**，
+    //    所以棋子立绘、名字牌、镜面那些字全压在它上面（准星那一层另排在棋子之后）。
+    //    ⚠️ 它是"埋在这一格上的枪"：**格子**才是标的（不像皇帝锁的是单位），所以这里也不画弹道虚线。
+    const buried = this.game.darkgunMarks?.() || [];
+    for (const entry of buried) this.drawDarkgunAim(g, entry.tile, time);
     for (const f of state.fire) this.drawFire(g, this.game.tile(f), f.side, time);
     for (const p of state.pillars) this.drawPillar(g, this.game.tile(p), p);
     const positions = state.units.map(u => ({ u, t: this.position(u, now) })).sort((a, b) => a.t.cy - b.t.cy);
@@ -5429,6 +6675,10 @@ class BoardVisual {
       const tile = this.game.tile(entry.unit);
       if (tile) this.drawEmperorCrosshair(g, tile, time);
     }
+    // ★★ 「暗枪」的准星（暗紫，写「暗枪」两个字）：同样排在棋子之后——
+    //    它是"埋在这一格上的枪"，格子上有没有人都得看得见（谁踩上来谁挨），
+    //    所以这一层压在立绘上只是罩一圈细线，立绘与名字仍然一眼看得清。
+    for (const entry of buried) this.drawDarkgunCrosshair(g, entry.tile, time);
     if (view.selected && !this.moves.has(view.selected.id)) drawSelected(g, this.game.tile(view.selected), time);
     if (view.hover) {
       g.save(); hexPath(g, view.hover.cx, view.hover.cy, R - 1.5);
@@ -5503,11 +6753,10 @@ class BoardVisual {
   drawUnit(g, t, u, selected, time) {
     const color = this.palette[u.side], isStand = u.kind === 'stand';
     const key = CHARACTER_ART[u.fighter][u.kind], img = this.outlined.get(key);
-    // 2v2：一个角色被打倒之后，他的两枚棋子还留在场上（看得见"他倒在这儿"），但要**一眼看出已经出局**
-    // ——整枚棋子压暗，并盖一层灰。1v1 时血量归零就已经结算，不会走到这里。
-    const fallen = this.game.slotAlive ? !this.game.slotAlive(u.slot) : false;
+    // 2v2：一个角色被打倒之后，他的棋子**直接从棋盘上离场**（`Game.removeFallenSlot`，2026-10-04
+    // 用户要求"倒下就不要再占位置"）——渲染按 `s.units` 走，所以移除即消失，不会留下鬼影。
+    // ⚠️ 旧口径是"棋子留在场上、压暗成尸体"，那套画法**已经删掉**：现在根本画不到那种棋子。
     g.save();
-    if (fallen) g.globalAlpha = .42;
     hexPath(g, t.cx, t.cy, R - 1);
     g.clip();
     g.beginPath(); g.ellipse(t.cx - 3, t.cy + 19, 21, 8, -.1, 0, Math.PI * 2);
@@ -5549,27 +6798,33 @@ class BoardVisual {
     }
     g.globalAlpha = 1;
     // Team and role survive both color blindness and identical character matchups.
+    // ★ 2026-10-05：底衬跟着放宽（±24 → ±10，原 ±19 → ±7），好兜住放大后的那一行名字（见 TILE_TEXT）。
     g.fillStyle = ink;
-    g.beginPath(); g.moveTo(t.cx - 19, t.cy + 20); g.lineTo(t.cx + 19, t.cy + 20);
-    g.lineTo(t.cx + 7, t.cy + 30); g.lineTo(t.cx - 7, t.cy + 30); g.closePath(); g.fill();
-    // 队伍与身份：颜色之外还要有文字，色盲和"同角色内战"都能分清。
-    // 2v2 时再补上"第几个角色"（P1·2），否则同队的两个角色看起来一模一样。
-    g.fillStyle = color; g.font = 'bold 8.5px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText(`${slotName(u.slot)} · ${isStand ? '替' : '主'}`, t.cx, t.cy + 24.5);
+    g.beginPath(); g.moveTo(t.cx - TILE_TEXT.plateTopHalf, t.cy + TILE_TEXT.plateTop);
+    g.lineTo(t.cx + TILE_TEXT.plateTopHalf, t.cy + TILE_TEXT.plateTop);
+    g.lineTo(t.cx + TILE_TEXT.plateBotHalf, t.cy + TILE_TEXT.plateBot);
+    g.lineTo(t.cx - TILE_TEXT.plateBotHalf, t.cy + TILE_TEXT.plateBot);
+    g.closePath(); g.fill();
+    const { barW, barH, barY } = TILE_TEXT;
     const ratio = this.game.s.hp[u.slot] / this.game.fighter(u.slot).hp;
-    g.fillStyle = '#494050'; g.fillRect(t.cx - 17, t.cy + 18, 34, 2);
-    g.fillStyle = ratio > .3 ? '#a5d5b5' : '#ee968c'; g.fillRect(t.cx - 17, t.cy + 18, 34 * Math.max(0, ratio), 2);
+    g.fillStyle = '#494050'; g.fillRect(t.cx - barW / 2, t.cy + barY, barW, barH);
+    g.fillStyle = ratio > .3 ? '#a5d5b5' : '#ee968c';
+    g.fillRect(t.cx - barW / 2, t.cy + barY, barW * Math.max(0, ratio), barH);
     // 状态小标（灼烧 / 溺水）：**必须画在六边形的内切范围里**。
     // ⚠️ 原来把它们贴在 cy-28 那种"上角"位置，而尖顶六边形越往上越窄（y=cy-28 时半宽只剩 8.7px），
     //    标记整个落在裁剪区之外——也就是说灼烧标记一直是看不见的。这几个常量按"放得下"反推出来：
-    //    裁剪半径是 R-1，在 dy=BADGE_Y 处的半宽 = 1.732×(R-1-BADGE_Y) = 22.5px ≥ 6+BADGE_W。
-    //    改这几个数字之前先看 tests/dark-blue-moon.test.js 里那条"标记必须在六边形内"的测试。
-    const BADGE_W = 16, BADGE_H = 11, BADGE_Y = 19;
+    //    裁剪半径是 R-1 = 32，在 dy = badgeY(=19) 处的半宽 = √3×(32−19) = 22.5px ≥ 6 + badgeW(=22)。
+    //    ⚠️⚠️ 2026-10-05 棋盘放大时这一组**一个数都没动**：它已经贴着内切宽的极限，
+    //       字号 +1 是在 16×11 的框里把字挤紧一点（"灼2"这类最多 2 个字符，放得下）。
+    //    改这几个数字之前先看 `tests/dark-blue-moon.test.js` 与 `tests/board-size.test.js`
+    //    里那两条"标记必须在六边形内"的测试。
+    const BADGE_W = TILE_TEXT.badgeW, BADGE_H = TILE_TEXT.badgeH, BADGE_Y = TILE_TEXT.badgeY;
     const badges = [];
     if (this.game.s.burn[u.slot]) badges.push({ bg: '#512e31', ink: '#ffbf90', text: `灼${this.game.s.burn[u.slot]}` });
     // 溺水：数字是「还能挣扎几个回合结束」（每个回合结束掉真实伤害）
     if (this.game.drowning?.(u.slot)) badges.push({ bg: '#183a5e', ink: '#a8dcff', text: `溺${this.game.s.drown[u.slot]}` });
-    g.font = 'bold 8px sans-serif';
+    g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`;
+    g.textAlign = 'center'; g.textBaseline = 'middle';
     badges.forEach((badge, index) => {
       const y = t.cy - BADGE_Y + index * BADGE_H;
       g.fillStyle = badge.bg; g.fillRect(t.cx + 6, y, BADGE_W, BADGE_H);
@@ -5580,13 +6835,14 @@ class BoardVisual {
       g.fillStyle = '#2c4a2f'; g.fillRect(t.cx - 6 - BADGE_W, t.cy - BADGE_Y, BADGE_W, BADGE_H);
       g.fillStyle = '#9fe0a8'; g.fillText('藤', t.cx - 6 - BADGE_W / 2, t.cy - BADGE_Y + BADGE_H / 2);
     }
-    // 出局的角色：压一层灰罩（压暗是在上面那层 alpha 之外再补一次，避免被立绘盖住）
-    if (fallen) {
-      g.globalAlpha = .5;
-      hexPath(g, t.cx, t.cy, R - 1);
-      g.fillStyle = '#1a1622'; g.fill();
-    }
+    // 出局的角色：**这里不再压灰罩**——倒下的棋子已经离场（见上面那段说明），画不到这一支；
+    // 旧写法是"在 alpha 之外再补一层灰罩，避免被立绘盖住"，随那条取舍一起删掉了。
     g.restore();
+    // ★★ 队伍与身份那一行（`P1 · 主` / 2v2 时的 `P1·2 · 主`）：**画在裁剪之外**。
+    //    六边形在 dy=25 处只剩 12px 半宽，2v2 的那一串字有 34px 宽——留在裁剪里必被切掉两端笔画。
+    //    所以改由 `drawTileTag()` 在 restore 之后画（深色描边 + 队伍色填充），
+    //    与「冷枪」「暗枪」那两个字同一套写法（见 TILE_TEXT 那段说明）。
+    drawTileTag(g, t, `${slotName(u.slot)} · ${isStand ? '替' : '主'}`, color);
     // 水中的棋子再套一圈青色边（画在裁剪之外，才不会被裁掉）：一眼就能认出"它正泡在水里"
     if (this.game.inWater?.(u)) {
       hexPath(g, t.cx, t.cy, R - 2.5);
@@ -5643,7 +6899,7 @@ class BoardVisual {
     g.stroke();
     if (!this.game.s.units.some(u => u.row === t.row && u.col === t.col)) {
       g.fillStyle = sealed ? '#9a93a2' : '#e6f6ff';
-      g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
       g.fillText(sealed ? '镜·封' : '镜面', t.cx, t.cy + 18);
     }
     g.restore();
@@ -5698,7 +6954,7 @@ class BoardVisual {
     g.restore();
     if (this.game.s.units.some(u => u.row === t.row && u.col === t.col)) return;
     g.save();
-    g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.lineWidth = 2.6; g.strokeStyle = 'rgba(10,6,12,.8)';
     g.strokeText('冷枪', t.cx, t.cy + 26);
     g.fillStyle = `rgba(255,150,140,${.7 + .3 * pulse})`;
@@ -5757,12 +7013,81 @@ class BoardVisual {
     //    免得糊住棋子下缘那一行名字与血条（冷枪／镜面为了不糊立绘选择了"有人就不写"）。
     const occupied = this.game.s.units.some(u => u.row === t.row && u.col === t.col);
     g.save();
-    g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
     g.lineWidth = 2.6; g.strokeStyle = 'rgba(10,6,12,.8)';
     const x = occupied ? t.cx - R + 11 : t.cx, y = occupied ? t.cy - R + 12 : t.cy + 35;
     g.strokeText('皇帝', x, y);
     g.fillStyle = `rgba(255,214,140,${.7 + .3 * pulse})`;
     g.fillText('皇帝', x, y);
+    g.restore();
+  }
+  /**
+   * ★★ 「暗枪」埋下的标记（2026-10-05 用户拍板）——**地面那一层**，画在棋子之前。
+   *
+   * 三套预告要一眼分得开（用户要求）：
+   *   · 红色 ＝「场边冷枪」的弹道（`drawSniperAim`，弹道虚线 + 红色警戒底色）；
+   *   · 金色 ＝「皇帝」锁定（`drawEmperorAim`，弹道虚线 + 金色警戒底色）；
+   *   · **暗紫 ＝「暗枪」埋下的两个位置**（这一处）：**没有弹道虚线**——它不像前两种是"某一枪正在瞄"，
+   *     而是"这一格被埋了一杆枪"（标的**是格子**，不是单位，也不认枪手站在哪）。
+   *
+   * 画法（都只铺在地上、线细、脉动只做透明度）：
+   *   ① 整格一层暗紫底色（"这一格不对劲"）；
+   *   ② **两个小圆点**——照 `icons.js` 里那支「短枪口 + 两点落位」的图形，把"一次埋两个位置"这件事
+   *      直接画在格子上（两格各一个点，一眼看出它们是一对）；
+   *   ③ 准星（紫圈 + 四条刻度）与「暗枪」两个字排在**棋子之后**另画，见下面 drawDarkgunCrosshair。
+   * ⚠️ 棋子立绘、名字牌、镜面那些字全都压在它上面，所以这一层糊不到立绘的可读性。
+   */
+  drawDarkgunAim(g, t, time) {
+    if (!t) return;
+    const pulse = .6 + .4 * Math.sin(time * 3.6);
+    g.save();
+    hexPath(g, t.cx, t.cy, R - 3); g.clip();
+    g.fillStyle = 'rgba(122,74,196,.28)'; g.fill();
+    g.restore();
+    // 落位点：一颗（每格一颗），暗紫细芯 + 一圈更淡的光晕——"这里埋着一杆枪"
+    g.save();
+    g.beginPath(); g.arc(t.cx, t.cy + 2, 2.2, 0, Math.PI * 2);
+    g.fillStyle = `rgba(206,162,255,${.5 + .4 * pulse})`; g.fill();
+    g.beginPath(); g.arc(t.cx, t.cy + 2, 4.6, 0, Math.PI * 2);
+    g.strokeStyle = `rgba(168,112,244,${.25 + .3 * pulse})`; g.lineWidth = 1; g.stroke();
+    g.restore();
+  }
+  /**
+   * ★★ 「暗枪」的准星（排在**棋子之后**，所以"哪一格埋着枪"不会被立绘挡住）。
+   * ⚠️ 与冷枪（`drawSniperCrosshair`）、皇帝（`drawEmperorCrosshair`）同样的两条读法：
+   *    线条一律细、脉动只做透明度；两个字带描边，压在任何底色上都读得清。
+   * ⚠️ 与那两条的一条**关键区别**：冷枪瞄的是格子（可能没人）、皇帝锁的一定有人，
+   *    而暗枪**标的也是格子**、但"谁踩谁挨"——所以「暗枪」两个字**在有人时也要写**，
+   *    只是挪到**格子右上角**（有人时皇帝那两个字在左上角，两套错开才读得清是谁的标记）；
+   *    没人时写在格子下缘 `t.cy + 44`（冷枪那行在 +26、皇帝在 +35，三行错开）。
+   */
+  drawDarkgunCrosshair(g, t, time) {
+    const pulse = .6 + .4 * Math.sin(time * 3.6);
+    g.save();
+    hexPath(g, t.cx, t.cy, R - 2);
+    g.strokeStyle = `rgba(168,112,244,${.42 + .45 * pulse})`;
+    g.lineWidth = 1.6 + pulse;
+    g.setLineDash([4, 7]);
+    g.lineDashOffset = -((time * 11) % 11);
+    g.stroke();
+    g.setLineDash([]);
+    g.strokeStyle = `rgba(206,170,255,${.4 + .45 * pulse})`;
+    g.lineWidth = 1.6;
+    for (const [x0, y0, x1, y1] of [[t.cx, t.cy - R + 4, t.cx, t.cy - R + 13], [t.cx, t.cy + R - 15, t.cx, t.cy + R - 6],
+      [t.cx - R + 12, t.cy + 6, t.cx - R + 21, t.cy + 6], [t.cx + R - 21, t.cy + 6, t.cx + R - 12, t.cy + 6]]) {
+      g.beginPath(); g.moveTo(x0, y0); g.lineTo(x1, y1); g.stroke();
+    }
+    g.restore();
+    const occupied = this.game.s.units.some(u => u.row === t.row && u.col === t.col);
+    g.save();
+    g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.lineWidth = 2.6; g.strokeStyle = 'rgba(10,6,12,.8)';
+    const x = occupied ? t.cx + R - 11 : t.cx, y = occupied ? t.cy - R + 12 : t.cy + 44;
+    // ⚠️ 这两个字与 `drawSniperCrosshair`／`drawEmperorCrosshair` 一样**直接写死**：
+    //    render.js 只从 game.js 取 `slotName`，不引 SKILLS（那两份也不引）。
+    g.strokeText('暗枪', x, y);
+    g.fillStyle = `rgba(206,162,255,${.7 + .3 * pulse})`;
+    g.fillText('暗枪', x, y);
     g.restore();
   }
   drawFire(g, t, side, time) {
@@ -5777,7 +7102,7 @@ class BoardVisual {
     }
     g.restore(); hexPath(g, t.cx, t.cy, R - 3);
     g.strokeStyle = this.palette[side]; g.lineWidth = 1.4; g.stroke();
-    g.fillStyle = this.palette[side]; g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.fillText(side.toUpperCase(), t.cx, t.cy + 26);
+    g.fillStyle = this.palette[side]; g.font = `bold ${TILE_TEXT.smallFont}px sans-serif`; g.textAlign = 'center'; g.fillText(side.toUpperCase(), t.cx, t.cy + 26);
   }
   /** 柱子／船体要害。**两者长得完全不同**：绿宝石柱是水晶，船体要害是钢块。
    *  ⚠️ 船体要害如果沿用柱子的画法，玩家会以为那是"绿宝石柱"（花京院的技能产物），
@@ -5822,13 +7147,19 @@ class BoardVisual {
       g.beginPath(); g.moveTo(t.cx, t.cy - 22); g.lineTo(t.cx + 8, t.cy - 6); g.lineTo(t.cx + 5, t.cy + 14); g.lineTo(t.cx, t.cy + 18); g.closePath(); g.fillStyle = '#c5ecc4'; g.fill();
       if (p.hp < p.maxHp * .6) { g.beginPath(); g.moveTo(t.cx - 10, t.cy); g.lineTo(t.cx + 2, t.cy - 3); g.lineTo(t.cx - 1, t.cy + 8); g.strokeStyle = ink; g.lineWidth = 1.3; g.stroke(); }
     }
-    g.fillStyle = ink; g.fillRect(t.cx - 17, t.cy + 20, 34, 9);
-    g.fillStyle = col; g.font = 'bold 8px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+    // 名字底衬 + 血条：跟着棋子的那套度量走（`TILE_TEXT`），放大后两者在屏幕上仍然一样大
+    g.fillStyle = ink;
+    g.fillRect(t.cx - TILE_TEXT.plateTopHalf + 3, t.cy + TILE_TEXT.plateTop,
+      (TILE_TEXT.plateTopHalf - 3) * 2, TILE_TEXT.plateBot - TILE_TEXT.plateTop);
+    g.fillStyle = '#474154';
+    g.fillRect(t.cx - TILE_TEXT.barW / 2, t.cy + TILE_TEXT.barY, TILE_TEXT.barW, TILE_TEXT.barH);
+    g.fillStyle = col;
+    g.fillRect(t.cx - TILE_TEXT.barW / 2, t.cy + TILE_TEXT.barY, TILE_TEXT.barW * p.hp / p.maxHp, TILE_TEXT.barH);
+    g.restore();
     // 船体要害那条牌子直接写**部件名**（"锅炉"/"承重柱"）——它是这一关唯一要打的目标，
     // 名字比"P2 · 柱"有用得多；绿宝石柱仍然写阵营与用途。
-    g.fillText(p.part ? p.name : `${p.side.toUpperCase()} · 柱`, t.cx, t.cy + 24.5);
-    g.fillStyle = '#474154'; g.fillRect(t.cx - 16, t.cy + 18, 32, 2);
-    g.fillStyle = col; g.fillRect(t.cx - 16, t.cy + 18, 32 * p.hp / p.maxHp, 2); g.restore();
+    // ⚠️ 与棋子名字同一套写法：**裁剪之外 + 深色描边**（见 `drawTileTag` 与 `TILE_TEXT` 的说明）。
+    drawTileTag(g, t, p.part ? p.name : `${p.side.toUpperCase()} · 柱`, col);
   }
   drawEffect(g, e, now) {
     const p = Math.max(0, Math.min(1, (now - e.start) / e.duration)), t = e.tile;
@@ -5947,6 +7278,10 @@ const paths = {
   //    所以照 icons 的规矩：新技能都要补一个自己的图标。
   aim: '<circle cx="12" cy="12" r="8.4"/><path d="M12 1.6v4.2M12 18.2v4.2M1.6 12h4.2M18.2 12h4.2"/><circle cx="12" cy="12" r="1.7" fill="currentColor" stroke="none"/>',
   emperor: '<path d="M3 8h13.5l4.5 2-4.5 2.2H12"/><circle cx="8.6" cy="14.2" r="3.3"/><path d="M7 17.1 4.6 22h4.3l1.9-4.3"/><path d="M20 5.4h1.6M20.4 2.8l1.4-.8"/>',
+  // ★★ 暗枪（2026-10-05 用户拍板新增的第三个技能）：
+  //   ⚠️ 没有条目时 icon() 会退回星形（`paths.star`）——那样它会和「流星指刺」撞脸，
+  //      所以照 icons 的规矩补一个自己的：一支**短枪口 + 两点落位**（"埋两个位置"的意思）。
+  darkgun: '<path d="M2.6 6.2h9.4l3.5 1.7-3.5 1.7H7.6"/><path d="M6.4 9.6 4.5 14h3.6l1.4-3.2"/><circle cx="16.4" cy="17.4" r="1.3" fill="currentColor" stroke="none"/><circle cx="20.8" cy="21" r="1.3" fill="currentColor" stroke="none"/><path d="M14.5 15.2l2.2 2.2M18.9 18.8l2.2 2.2"/>',
 };
 function icon(name, cls = '') {
   return `<svg class="ico ${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths[name] || paths.star}</svg>`;
@@ -5957,7 +7292,7 @@ return {icon};
 
 // ===== src/ui/hud.js =====
 __mods["src/ui/hud.js"] = (function(){
-const {RULE, FIGHTERS, SKILLS, skillSetFor, otherSide, teamOf, slotIndex, slotName, playableFighters} = __mods["src/core/game.js"];
+const {RULE, FIGHTERS, SKILLS, MAPS, DEFAULT_MAP_ID, resolveMapId, mapList, skillSetFor, otherSide, teamOf, slotIndex, slotName, playableFighters, ITEM_TYPES} = __mods["src/core/game.js"];
 const {hexDist, tileKey, tileLabel} = __mods["src/core/hex.js"];
 const {icon} = __mods["src/ui/icons.js"];
 const {CHARACTER_ART, portrait, piece} = __mods["src/ui/assets.js"];
@@ -6021,6 +7356,17 @@ function applyAiParam(draft, value) {
   draft.control = { ...draft.control, ...next };
   return draft.control;
 }
+/**
+ * ★★ 2026-10-05 加地图体系：大厅里选的**地图**（`MAPS` 的键）写进 draft。
+ * 与 `applyAiParam` 同一套写法——**认不出的地图名一律退回 `default`，绝不抛错**：
+ * 网址参数（`?map=shallows`）、大厅按钮、以及将来任何调用点都共用这一个收敛口径。
+ */
+function applyMapParam(draft, value) {
+  draft.map = resolveMapId(value);
+  return draft.map;
+}
+/** 当前这张地图在界面上叫什么（认不出的键退回默认地图的名字）。 */
+function mapLabel(key) { return MAPS[resolveMapId(key)]?.name || MAPS[DEFAULT_MAP_ID].name; }
 
 /** 一位的「真人 / 人机」开关（放在这一位选人面板的上方）。
  *  按钮上的字用用户拍定的「真人 / 人机」；状态文案（顺序条、槽位行、底部提示）里用「电脑」，
@@ -6076,6 +7422,19 @@ function renderDraft(draft) {
       return `<button type="button" class="draft-step${draft[slot] ? ' is-done' : ''}${active === slot ? ' is-turn' : ''}" data-draft-focus="${slot}" aria-pressed="${draft[slot] ? 'true' : 'false'}"><b>${pickLabel(slot)}</b><small>${picked ? esc(picked.user.name) : '待选'} · ${controlLabel(control[slot])}</small></button>`;
     }).join('')}`;
   }
+  // ★★ 2026-10-05 加地图体系：**地图选择器**（一张地图 ＝ 一套地形布局 ＋ 配套背景画）。
+  //   ⚠️ 按钮是**按 `MAPS` 数据渲染**的（不是写死在 index.html 里），所以以后加地图只改 rules.js
+  //      那一份数据，界面自动多一颗按钮。风格沿用大厅现有的「对战人数」那一组（同一套 class）。
+  //   ⚠️ 认不出的 `draft.map` 由 `resolveMapId()` 收敛成 default —— 老调用点（没有 map 字段的
+  //      draft 对象）渲染出来就是"默认战场"被选中，与改动前的行为一致。
+  const mapPicker = $('mapPick');
+  const currentMap = resolveMapId(draft?.map);
+  if (mapPicker) {
+    mapPicker.innerHTML = `<span>地图</span>${mapList().map(item => `<button type="button" class="team-mode" data-map="${esc(item.id)}" aria-pressed="${item.id === currentMap}" title="${esc(item.blurb || '')}" aria-label="地图 ${esc(item.name)}：${esc(item.blurb || '')}">${esc(item.name)}</button>`).join('')}`;
+  }
+  // 当前地图的玩法说明（一句话）：选之前就能看出"这张图打起来哪里不一样"
+  const mapNote = $('mapNote');
+  if (mapNote) mapNote.textContent = MAPS[currentMap]?.blurb || '';
   const start = $('startBtn');
   // ★ 所有参战位子（**人机位也一样**）都选好角色才能开打。引擎里还有一层同样的校验兜底。
   const missing = order.filter(slot => !draft[slot]);
@@ -6205,7 +7564,7 @@ function bayBody(game, slot, { inspecting = null, isActing = false, humanTurn = 
         let label = status.passive ? status.status : status.cd ? `冷却 ${status.cd}` : key === 'time' ? (s.timeUsed[slot] ? '本局已用' : game.timeAvailable(slot) ? '可发动' : s.timeLocked[slot] ? '窗口已过' : '半血解锁')
           : key === 'blaze' && s.blazeUsed[slot] ? '本局已用' : `${skill.cost} AP`;
         return `<button class="bay-skill" data-inspect-skill="${key}" data-side="${slot}" aria-label="查看${game.skillLabel(key, slot)}说明，${esc(label)}">${icon(key)}<b>${game.skillLabel(key, slot)}</b><small class="${label === '可发动' ? 'ready' : ''}">${esc(label)}</small></button>`;
-      }).join('')}</div><div class="status-tags">${pillarTag(game, slot)}${s.burn[slot] ? `<span class="status-tag">灼烧 ${s.burn[slot]} 层 · 治疗减半</span>` : ''}${s.traumaCut[slot] ? `<span class="status-tag">创伤 · 替身防御 −${s.traumaCut[slot]}</span>` : ''}${s.vampCharged[slot] ? '<span class="status-tag good">吸血鬼已强化</span>' : ''}${s.timeReady[slot] ? '<span class="status-tag good">时停仅本回合可用</span>' : ''}${s.skipSide === slot ? '<span class="status-tag good">时间停止生效中</span>' : ''}${s.armorOff?.[slot] ? `<span class="status-tag warn">卸甲 · 防御归零 +${RULE.armorAP} AP</span>` : ''}${s.swordBuff?.[slot] ? `<span class="status-tag good">精湛剑术 · 攻击力 +${s.swordBuff[slot]}/${RULE.masteryMax}</span>` : ''}${Object.keys(s.vine || {}).some(id => id.startsWith(`${slot}-`)) ? `<span class="status-tag warn">藤蔓 · 移动 −${RULE.vineMovePenalty}</span>` : ''}${s.extraAP?.[slot] && game.skills(slot).includes('nextline') ? '<span class="status-tag good">已预判 · 下回合 +1 AP</span>' : ''}${s.sandGuard?.[slot] ? `<span class="status-tag good">潜沙 · 基础防御 +${SKILLS.dive.guard}</span>` : ''}${s.sandBlind?.[slot] ? `<span class="status-tag warn">流沙迷眼 · 普攻 ${Math.round(SKILLS.sandblast.miss * 100)}% 打空</span>` : ''}${game.drowning?.(slot) ? `<span class="status-tag warn">溺水 · 还剩 ${s.drown[slot]} 个回合结束，共 ${s.drown[slot] * SKILLS.drag.drownDmg} 点真实伤害</span>` : ''}${game.storyStatus?.(slot) ? `<span class="status-tag ${game.storyRage(slot) ? 'good' : ''}">${esc(game.storyStatus(slot))}</span>` : ''}${game.shipRule?.() && teamOf(slot) === 'p2' ? shipProgressTags(game) : ''}${game.ebonyRule?.() && teamOf(slot) === 'p2' ? ebonyTags(game) : ''}${game.mirrorRule?.() && teamOf(slot) === 'p2' ? mirrorTags(game) : ''}${game.sniperRule?.() && game.sniperUnit?.()?.slot === slot ? sniperTags(game) : ''}${emperorTags(game, slot)}${s.eroded?.[slot] ? `<span class="status-tag warn">侵蚀 · 每次自己普攻 −${SKILLS.erosion.erosionDmg} HP</span>` : ''}${s.slimeGuard?.[slot] ? `<span class="status-tag good">史莱姆防御 · 基础防御 +${SKILLS.slime.guard}</span>` : ''}</div>`;
+      }).join('')}</div><div class="status-tags">${pillarTag(game, slot)}${itemTags(game, slot)}${s.burn[slot] ? `<span class="status-tag">灼烧 ${s.burn[slot]} 层 · 治疗减半</span>` : ''}${s.traumaCut[slot] ? `<span class="status-tag">创伤 · 替身防御 −${s.traumaCut[slot]}</span>` : ''}${s.vampCharged[slot] ? '<span class="status-tag good">吸血鬼已强化</span>' : ''}${s.timeReady[slot] ? '<span class="status-tag good">时停仅本回合可用</span>' : ''}${s.skipSide === slot ? '<span class="status-tag good">时间停止生效中</span>' : ''}${s.armorOff?.[slot] ? `<span class="status-tag warn">卸甲 · 防御归零 +${RULE.armorAP} AP</span>` : ''}${s.swordBuff?.[slot] ? `<span class="status-tag good">精湛剑术 · 攻击力 +${s.swordBuff[slot]}/${RULE.masteryMax}</span>` : ''}${Object.keys(s.vine || {}).some(id => id.startsWith(`${slot}-`)) ? `<span class="status-tag warn">藤蔓 · 移动 −${RULE.vineMovePenalty}</span>` : ''}${s.extraAP?.[slot] && game.skills(slot).includes('nextline') ? '<span class="status-tag good">已预判 · 下回合 +1 AP</span>' : ''}${s.sandGuard?.[slot] ? `<span class="status-tag good">潜沙 · 基础防御 +${SKILLS.dive.guard}</span>` : ''}${s.sandBlind?.[slot] ? `<span class="status-tag warn">流沙迷眼 · 普攻 ${Math.round(SKILLS.sandblast.miss * 100)}% 打空</span>` : ''}${game.drowning?.(slot) ? `<span class="status-tag warn">溺水 · 还剩 ${s.drown[slot]} 个回合结束，共 ${s.drown[slot] * SKILLS.drag.drownDmg} 点真实伤害</span>` : ''}${game.storyStatus?.(slot) ? `<span class="status-tag ${game.storyRage(slot) ? 'good' : ''}">${esc(game.storyStatus(slot))}</span>` : ''}${game.shipRule?.() && teamOf(slot) === 'p2' ? shipProgressTags(game) : ''}${game.ebonyRule?.() && teamOf(slot) === 'p2' ? ebonyTags(game) : ''}${game.mirrorRule?.() && teamOf(slot) === 'p2' ? mirrorTags(game) : ''}${game.sniperRule?.() && game.sniperUnit?.()?.slot === slot ? sniperTags(game) : ''}${emperorTags(game, slot)}${darkgunTags(game, slot)}${s.eroded?.[slot] ? `<span class="status-tag warn">侵蚀 · 每次自己普攻 −${SKILLS.erosion.erosionDmg} HP</span>` : ''}${s.slimeGuard?.[slot] ? `<span class="status-tag good">史莱姆防御 · 基础防御 +${SKILLS.slime.guard}</span>` : ''}</div>`;
 }
 
 function renderCards(game, { inspecting = null, humanTurn = true } = {}) {
@@ -6304,7 +7663,7 @@ function renderActions(game, { humanTurn = true, busy = false } = {}) {
   $('cancelBtn').disabled = !u || !active;
   const note = waiting ? '电脑正在行动。可打开菜单暂停，或查看单位与技能说明。' : s.notice?.text || '选择己方单位开始行动。';
   $('info').className = !waiting && s.notice?.level === 'warn' ? 'warn' : '';
-  $('info').innerHTML = `${icon(!waiting && s.notice?.level === 'warn' ? 'alert' : 'chevron')}<span>${esc(note)}</span>${s.pendingSkill === 'flame' ? `<button class="finish-flame" id="finishFlameBtn">${s.flamePlaced.length ? '完成铺设' : '取消铺设'}</button>` : ''}`;
+  $('info').innerHTML = `${icon(!waiting && s.notice?.level === 'warn' ? 'alert' : 'chevron')}<span>${esc(note)}</span>${s.pendingSkill === 'flame' ? `<button class="finish-flame" id="finishFlameBtn">${s.flamePlaced.length ? '完成铺设' : '取消铺设'}</button>` : ''}${s.pendingSkill === 'darkgun' ? `<button class="finish-flame" id="finishDarkgunBtn">${s.darkPlaced.length ? '收手（已埋的标记照旧生效）' : '取消埋枪'}</button>` : ''}`;
 }
 
 /**
@@ -6462,6 +7821,31 @@ function emperorTags(game, slot) {
   return tags.join('');
 }
 /**
+ * ★★ 「暗枪」（2026-10-05 用户拍板）的状态标签，**一个函数管两头**（照 `emperorTags` 的写法）：
+ *   · **埋枪的人**那一栏：「暗枪已标记 N 格 · 对手回合结束时结算 8 点（计防御）」
+ *     （N 只数他自己埋的，同队的别人不白拿）；还没埋满就把"还能再标几格"也说清楚；
+ *   · **对面**那一栏：「对方的暗枪正指着这里的 N 格 · 回合结束时踩在上面受 8 点伤害（计防御）」——
+ *     用户要的就是"对手看得见、能躲开"，所以这一句必须挂在被指着的那一方身上。
+ * ⚠️ 数值全部取自 `SKILLS.darkgun`（`dmg` / `marks` / `range`），界面里不手写一遍。
+ * ⚠️ 与冷枪／皇帝那两条**三套颜色、三套说法**：冷枪是"挪开那一格就躲开了"、皇帝是"挪开也躲不掉"、
+ *    暗枪是"埋在地上的格子，谁踩谁挨，挪开那一步就走掉了"——所以措辞也各写各的。
+ */
+function darkgunTags(game, slot) {
+  const sk = SKILLS.darkgun;
+  const marks = game.darkgunMarks?.() || [];
+  if (!marks.length) return '';
+  const tags = [];
+  const mine = marks.filter(m => m.by === slot);
+  if (mine.length) {
+    tags.push(`<span class="status-tag warn">${sk.name}已标记 ${mine.length} 格 · 对手回合结束时结算 ${sk.dmg} 点（计防御）${mine.length < sk.marks ? ` · 还能再标 ${sk.marks - mine.length} 格` : ''}</span>`);
+  }
+  const incoming = marks.filter(m => m.side !== teamOf(slot));
+  if (incoming.length) {
+    tags.push(`<span class="status-tag warn">对方的${sk.name}正指着这里的 ${incoming.length} 格 · 回合结束时踩在上面受 ${sk.dmg} 点伤害（计防御 · 挪开那一步就走掉了）</span>`);
+  }
+  return tags.join('');
+}
+/**
  * 场地专属的地形叫法：效果完全一样，只是名字与外观要符合场景。
  * 例：飞机上不该出现"沼泽/岩石/草丛"，改用机舱里的东西（见 render.js 的 plane-* 皮肤）。
  */
@@ -6504,18 +7888,53 @@ function tileDescription(game, tile) {
   const locked = game.emperorMarks?.().find(entry => entry.unit.row === tile.row && entry.unit.col === tile.col);
   const lock = locked
     ? `「${SKILLS.emperor.name}」锁定着这里的单位 · 一回合后受到 ${game.emperorDamage(locked.unit)} 点伤害（计防御 · 挪开也躲不掉）` : '';
+  // ★★ 「暗枪」标记：鼠标停上去就要看出"这一格被埋了枪、对手回合结束时站在这儿的敌人会挨多少"。
+  //   ⚠️ 与上面两条分得清清楚楚：冷枪是**弹道**（下一回合开火、挪开就躲开）、
+  //      皇帝锁的是**单位**（挪开也躲不掉）、暗枪是**埋在这一格上的雷**——
+  //      "谁踩谁挨、走开就没事"，所以说法也不一样。
+  //   ⚠️ 取值用 `entry.row` / `entry.col`：`game.darkgunMarks()` 是把标记**平铺**出来再加一格
+  //      `tile`（`{ by, side, row, col, round, name, tile }`）——与 `emperorMarks()`（那一份是
+  //      `{ slot, mark, unit, by }`、要读 `entry.mark.row`）**形状不同**，别照抄上面那条的写法。
+  const buried = game.darkgunMarks?.().find(entry => entry.row === tile.row && entry.col === tile.col);
+  const dark = buried
+    ? `${SKILLS.darkgun.name}标记着这一格 · 对手回合结束时站在格上的敌方单位受到 ${SKILLS.darkgun.dmg} 点伤害（计防御 · 走开就没事）` : '';
+  // ★★ 2026-10-05 用户拍板：**可拾取的道具**——鼠标停上去就要看出"这是什么道具、捡了有什么用"。
+  //   ⚠️ 文案与数值全部取自 `ITEM_TYPES`（`stat` / `amount` / `duration`），界面里不手写数值；
+  //      「连携」对**没有替身棋子**的角色会改成移动 +1，所以这一格要把那条例外也说清楚。
+  //   ⚠️ 这里**不按"现在轮到谁"挑槽位**：盘面上每个槽位都可能来捡，所以只写这件道具本身的效果，
+  //      例外那一句只在"这一局真的有单单位角色"时才挂上（判据是 `FIGHTERS.x.stand`，不按角色名）。
+  const picked = game.itemAt?.(tile);
+  const pickedDef = picked ? ITEM_TYPES[picked.type] : null;
+  const soloInPlay = (game.s.slots || []).some(slot => !game.fighter?.(slot)?.stand);
+  const item = pickedDef
+    ? `${pickedDef.name}道具 · 走上去就能捡走：${pickedDef.stat} +${pickedDef.amount}（${pickedDef.duration}）`
+      + (pickedDef.buff === 'dist' && soloInPlay ? '（没有替身棋子的角色捡到它会改成移动 +1）' : '')
+    : '';
   // 「邻石 +1 防」是"紧邻障碍物"的意思：野外叫岩石，机舱里就是行李箱堆
   const adj = game.adjRock(tile) ? `邻${arenaTerrainNames[arena]?.rock || terrainNames.rock} +1 防` : '';
-  // 海面关卡先交代脚下是什么：水里玩家方移动 −1，这一条必须让玩家在格子上就能看到
+  // 水域地图先交代脚下是什么：水里的玩家方移动 −1，这一条必须让玩家在格子上就能看到
+  // ⚠️ 惩罚值读**当前地图的数据**（`game.waterPenalty()`），没开局/老调用点退回 RULE 的口径——
+  //    两个数现在是同一个（浅滩水路地图引用 RULE.waterMovePenalty），但地图才是"这张图减多少"的来源。
   const ground = game.wateryArena?.()
-    ? [game.isWaterTile(tile) ? `水面 · 移动 −${RULE.waterMovePenalty}` : '木甲板']
+    ? [game.isWaterTile(tile) ? `水面 · 移动 −${game.waterPenalty?.() ?? RULE.waterMovePenalty}` : '木甲板']
     : [];
-  return [...ground, part, shine, perch, shot, lock, terrainName(ty, arena), fire ? `${fire.side.toUpperCase()} 火焰` : '', adj].filter(Boolean).join(' · ');
+  return [...ground, item, part, shine, perch, shot, lock, dark, terrainName(ty, arena), fire ? `${fire.side.toUpperCase()} 火焰` : '', adj].filter(Boolean).join(' · ');
 }
 function hoverPreview(game, tile, inspected = null) {
   const u = game.selected, target = inspected || (tile && game.occupant(tile)), s = game.s;
   let content = '', invalid = false, path = [];
-  if (target && u && target.side !== u.side && !['emerald', 'flame'].includes(s.pendingSkill)) {
+  // ★★ 「暗枪」：瞄准的是**格子**（被棋子占着的格子也能标），所以它自己一条分支、**排在最前面**——
+  //    不这么写的话，悬停到敌方棋子身上会掉进下面那条"攻击预览"，然后被 `attackReason` 一句
+  //    "这个技能不能用于攻击"顶掉（假的可选/不可选）。
+  if (s.pendingSkill === 'darkgun' && tile && u) {
+    const reason = game.darkgunTileReason(u, tile);
+    invalid = !!reason;
+    const victim = game.darkgunVictim(tile, u.side);
+    content = `${icon('darkgun')}<span class="target-name">${tileLabel(tile)}</span><span class="${reason ? 'unavailable' : ''}">${reason ? esc(reason)
+      : `可标记（第 ${s.darkPlaced.length + 1}/${SKILLS.darkgun.marks} 格）${victim
+        ? ` · 这里站着 ${victim.name}：结算时受 ${game.darkgunDamage(victim)} 点伤害（计防御）`
+        : ' · 这一格现在没人，对手走上来才挨'}`}</span>`;
+  } else if (target && u && target.side !== u.side && !['emerald', 'flame'].includes(s.pendingSkill)) {
     const skill = s.pendingSkill, pv = game.preview(u, target, skill);
     // ★★ 「皇帝」是"锁定一个单位"而不是当场攻击：判定要走 emperorReason——
     //    `attackReason` 的技能白名单里没有它，拿它判定会一律报"这个技能不能用于攻击"。
@@ -6564,6 +7983,25 @@ function pillarTag(game, slot) {
   return touching ? '<span class="status-tag good">绿宝石柱护体 · 防御 +1</span>' : '';
 }
 
+/**
+ * ★★ 2026-10-05 用户拍板：**这个角色从道具拿到的加成**（地形交互那一层）。
+ * 口径（用户原话："状态栏要能看出这个角色拿到了什么加成，例如「力量 · 攻击 +2」这类标签，
+ * 跟既有的'精湛剑术/潜沙'那些排在一起"）：
+ *   · **按角色槽位**读那本账（`game.itemBuffs(slot)`）——同一队另一个角色一点都沾不上；
+ *   · 文案与数值**从 `ITEM_TYPES` 的数据拼**（`名称 · 加什么 +几`），界面里不手写"力量 +2"；
+ *   · 同一件捡到两次就显示累计值（`攻击 +4`），因为账本本来就是累加的；
+ *   · 「时间」**不进这张表**：它是"当场 +1 行动点"，用完就没有了——它的痕迹在战斗记录与提示里，
+ *     状态栏里挂一条"曾经 +1 AP"反而是假话（那个加成早就花掉了）。
+ */
+function itemTags(game, slot) {
+  const buffs = game.itemBuffs?.(slot);
+  if (!buffs) return '';
+  return Object.values(ITEM_TYPES)
+    .filter(def => def.buff !== 'ap' && (buffs[def.buff] || 0) > 0)
+    .map(def => `<span class="status-tag good">${esc(def.name)} · ${esc(def.stat)} +${buffs[def.buff]}</span>`)
+    .join('');
+}
+
 /** 战斗记录：棋盘下方那块**常驻面板**显示全部流程；弹窗（全屏）里也照旧渲染一份。 */
 function renderLog(game) {
   const typeIcon = e => ({ hit: 'attack', heal: 'heart', move: 'move', skill: e.skill || 'star', place: 'emerald', start: 'flag', turn: 'chevron', status: 'shield', result: 'flag', skip: 'time' })[e.type] || 'log';
@@ -6579,7 +8017,39 @@ function renderLog(game) {
   }
 }
 
-return {esc, plain, draftOrder, nextDraftPick, pickLabel, controlLabel, draftControl, applyAiParam, renderDraft, specialRulesHtml, renderStoryMenu, renderStoryStage, renderCards, renderActions, tileDescription, hoverPreview, renderLog};
+return {esc, plain, draftOrder, nextDraftPick, pickLabel, controlLabel, draftControl, applyAiParam, applyMapParam, mapLabel, renderDraft, specialRulesHtml, renderStoryMenu, renderStoryStage, renderCards, renderActions, tileDescription, hoverPreview, renderLog};
+})();
+
+// ===== src/ui/cutin.js =====
+__mods["src/ui/cutin.js"] = (function(){
+/**
+ * 大招插画（cutin）**该不该播**的判定。
+ *
+ * ★ 2026-10-05 用户要求①：每个角色的**第三个技能**都要播大招插画。
+ *   判定拆成两个纯函数放在这里（照 `ui/skip.js` 的写法：判定与显示分开），
+ *   于是 `tests/cutin-third-skill.test.js` 既能在不用 DOM 的情况下逐角色验一遍，
+ *   也能在**假 DOM** 里把同一份判定喂给 main.js 真实的 `onEvent`，看画面上是不是真播了。
+ *
+ * ⚠️ 显示那一侧（`showCutin`：节奏、喊话、减弱动效的退化、自动收起）一个字都没动，
+ *    仍在 main.js 里；这里只回答"这一次出手该不该放"。
+ */
+
+/**
+ * 该角色技能表里的**第三个技能**。
+ *
+ * 口径（用户 2026-10-05 定）：
+ *   · 传进来的是**实际生效的那一份技能表**（引擎侧就是 `game.skills(槽位)`）——
+ *     剧情模式的技能替换（`swaps.<角色>.skills`）会让表**变短或换内容**，判定跟着走；
+ *   · **不足三个技能的角色**（只有 2 个技能的 boss、没有技能的 boss）＝**没有第三技能**：
+ *     这里返回 `null`，调用方照常走白名单那一支，**不报错、也不瞎播**；
+ *   · 不是数组（调用方漏传）走同一个兜底，同样返回 `null`。
+ */
+const thirdSkillOf = skills => (Array.isArray(skills) && skills.length >= 3 ? skills[2] : null);
+
+/** 这一次出手的技能，是不是"该角色的第三个技能"（表按**实际生效**的那一份传进来）。 */
+const isThirdSkill = (skills, skill) => !!skill && thirdSkillOf(skills) === skill;
+
+return {thirdSkillOf, isThirdSkill};
 })();
 
 // ===== src/ui/story.js =====
@@ -7725,14 +9195,17 @@ return {MODES, levelOf, levels, menuModeLabel, setBgmTrack, status, onStatus, se
 
 // ===== src/main.js =====
 __mods["src/main.js"] = (function(){
-const {Game, FIGHTERS, SKILLS, STORY_CHAPTERS, isBoss, teamOf, slotName, playableFighters} = __mods["src/core/game.js"];
+const {Game, FIGHTERS, SKILLS, STORY_CHAPTERS, isBoss, teamOf, slotName, playableFighters, resolveMapId} = __mods["src/core/game.js"];
 const {chooseAI, playAIAction} = __mods["src/core/ai.js"];
 const {clientPoint, tileAt, tileLabel, tileKey, COLS, ROWS} = __mods["src/core/hex.js"];
 const {BoardVisual, loadSprites, SPRITES} = __mods["src/ui/render.js"];
 const {watchBoardScale} = __mods["src/ui/layout.js"];
-const {renderDraft, renderStoryStage, renderStoryMenu, renderCards, renderActions, renderLog, hoverPreview, tileDescription, specialRulesHtml, esc, plain, nextDraftPick, draftOrder, applyAiParam} = __mods["src/ui/hud.js"];
+const {renderDraft, renderStoryStage, renderStoryMenu, renderCards, renderActions, renderLog, hoverPreview, tileDescription, specialRulesHtml, esc, plain, nextDraftPick, draftOrder, applyAiParam, applyMapParam} = __mods["src/ui/hud.js"];
 const {icon} = __mods["src/ui/icons.js"];
 const {cutin, portrait, CHARACTER_ART} = __mods["src/ui/assets.js"];
+// ★ 2026-10-05 用户要求①：大招插画该不该播的判定（"第三个技能"）抽成纯函数放在 ui/cutin.js
+//   ——照 ui/skip.js 那套写法，判定与显示分开，判定可以在假 DOM（或干脆不用 DOM）里逐角色验一遍。
+const {isThirdSkill} = __mods["src/ui/cutin.js"];
 const {storyHtml, storyPageState, storySceneAt, storyBattleScene, storyRoadmap} = __mods["src/ui/story.js"];
 // ★ 2026-10-03 用户要求①：点空白处跳过演出（判定与顺序都是纯函数，见 ui/skip.js）
 // ★ 2026-10-04 用户要求②：剧情正文页上**点空白处＝点那一页的「继续」**（同一个文件里的 skipStoryBlank）
@@ -7758,9 +9231,15 @@ const unlockAll = query.get('unlock') === 'all';
  *     每个角色位各自决定由谁玩，开打时按参战槽位交给引擎（见 controlTable()）。
  *     默认＝用户拍定的那一套：**P1① 与 P1② 真人、P2① 与 P2② 人机**。
  *   · `focus` 记住每一侧的名单正在给哪个槽位选人（2v2 才有意义）。
+ *   · ★★ 2026-10-05 加地图体系：`map` 是这一局要用的**地图键**（`MAPS` 的键）——
+ *     大厅里能选（默认 `default`），网址参数 `?map=shallows` 也能指定（方便测试与分享）。
+ *     认不出的名字由 `resolveMapId()` 收敛成 `default`（不崩）。
  * 轮流选人的顺序（P1① → P2① → P1② → P2②）由 hud 的 nextDraftPick() 推出来，这里不另存状态。
  */
-const draft = { p1: 'jotaro', p2: 'dio', p1b: null, p2b: null, v2v: false, focus: { p1: 'p1', p2: 'p2' }, mode: 'hotseat', control: { p1: 'human', p2: 'ai', p1b: 'human', p2b: 'ai' }, story: null };
+const draft = { p1: 'jotaro', p2: 'dio', p1b: null, p2b: null, v2v: false, focus: { p1: 'p1', p2: 'p2' }, mode: 'hotseat', control: { p1: 'human', p2: 'ai', p1b: 'human', p2b: 'ai' }, story: null,
+  // 网址参数 `?map=` 在这里就生效（不必等到开打）：这样"分享一条链接"＝打开就是那张图，
+  // 不写参数就是 `default`。⚠️ 剧情模式不用它——章节自带地图（见 game.js 的 start()）。
+  map: resolveMapId(query.get('map')) };
 /** 剧情模式读到哪一章、哪一幕；storyView 是当前这一幕的解析结果（按钮动作由它决定）。 */
 const storyRead = { chapter: 0, scene: 0 };
 let storyView = null;
@@ -8085,6 +9564,10 @@ function startMatch() {
     story: !!storyChapter,
     scene: storyScene,
   });
+  // ★★ 2026-10-05 加地图体系：开打前把**大厅选的地图**登记进引擎（与 `setRoster()` 同一条路——
+  //    理由一样：下面那一行 `game.start(...)` 的写法被 tests/title-screen.test.js 的正则钉住了）。
+  //    ⚠️ 剧情模式由章节自己的 `map` 说了算，引擎会忽略这里登记的值（见 game.js 的 start()）。
+  game.setMap(draft.map);
   if (!game.start(draft.p1, draft.p2, draft.mode, { story: draft.story })) {
     // 2v2 没选齐（或同队重复）时引擎会拒绝开局：回选人页并说明原因，别留一个空战场。
     showLobby();
@@ -8152,7 +9635,8 @@ function onEvent(event) {
     else play(SKILL_SFX[event.skill] || 'sfxSkill');
     // ★ 2026-10-03 用户要求：**boss 放「史莱姆防御」时也要播它那张大招插画**
     //   （第七章黄色节制此前只在结算画面用过那张图，战斗里一点演出都没有）。
-    if (['ora', 'time', 'splash', 'flame', 'blaze', 'blade', 'armor', 'vine', 'hamon', 'drag', 'sucker', 'slime'].includes(event.skill)) showCutin(event);
+    // ★ 2026-10-05 用户要求①：**「技能白名单」∪「该角色技能表里的第三个技能」**（不足三个技能＝没有第三技能）。
+    if (['ora', 'time', 'splash', 'flame', 'blaze', 'blade', 'armor', 'vine', 'hamon', 'drag', 'sucker', 'slime'].includes(event.skill) || isThirdSkill(event.side ? game.skills(event.side) : [], event.skill)) showCutin(event);
   } else if (event.type === 'cutin') {
     // ★ 不是技能、但也要放大招插画的事件（第六章「憎恨」第一次叠满，见 game.addHatred）。
     //   走同一条显示通道，所以动画、时长、暂停节奏、减弱动效的处理全都一致。
@@ -8238,6 +9722,14 @@ function onEvent(event) {
   refreshBgm();
   invalidate();
 }
+
+/**
+ * ⚠️ 这两个导出**只给测试用**（`tests/cutin-third-skill.test.js`）：那一条用例在**假 DOM** 里
+ *    `import('../src/main.js')`，然后直接拿引擎摆好的技能表驱动**真实的 `onEvent`**——
+ *    这样"第三个技能会播大招插画"验的是**接线本身**，而不是只做一遍源码正则检查。
+ *    浏览器侧 `index.html` 不读它们（`?test` 那份 `window.__jojo` 照旧单独挂）。
+ */
+
 
 /** 背景音乐场景：主界面与常规局面播放主界面播放列表，任一方残血时切危急曲。
  *  残血判定收敛在 `game.lowHealth()` 里（口径＝共享生命 ≤ 上限的一半，**含正好一半**），
@@ -8497,6 +9989,10 @@ function tick(now) {
   if (document.querySelector('dialog[open]')) return;
   const revision = game.revision;
   if (lastViewRevision !== revision) { view = game.actionView(); lastViewRevision = revision; }
+  // ★ 2026-10-04：正在"查看"的那枚棋子可能已经**不在场上了**（角色被打倒 → 棋子离场，见
+  //   `Game.removeFallenSlot`）——立刻放下它。否则棋盘上会留一圈"查看中"的攻击范围残影，
+  //   而棋子本身已经画不出来了（渲染按 `s.units` 走）。放下它不改变对局状态，只是清掉查看目标。
+  if (inspecting && !game.s.units.includes(inspecting)) inspecting = null;
   const renderKey = `${revision}|${busy()}|${forceRender}|${inspecting?.id || ''}`;
   if (renderKey !== lastRender) {
     lastRender = renderKey;
@@ -8629,6 +10125,16 @@ function bindEvents() {
       draft.focus = { p1: 'p1', p2: 'p2' };
       play('sfxClick'); showLobby();
     }
+    else if (button.dataset.map) {
+      // ★★ 2026-10-05 加地图体系：大厅里的**地图按钮**（一张地图 ＝ 一套地形布局 ＋ 配套背景画）。
+      //   只改这一局的"地图"这一项，别的（角色、人数、真人/人机）都不动；
+      //   按钮是 hud 按 rules.js 的 `MAPS` 渲染出来的，所以加地图不用碰这里。
+      //   ⚠️ 认不出的地图名由 `applyMapParam()` 收敛成 default（不会崩）。
+      applyMapParam(draft, button.dataset.map);
+      renderDraft(draft);
+      document.querySelector(`[data-map="${draft.map}"]`)?.focus({ preventScroll: true });
+      play('sfxClick');
+    }
     else if (button.dataset.controlSlot) {
       // ★ 逐位的「真人 / 人机」开关（在该位选人面板上方）：只改这一位，不动别人。
       const slot = button.dataset.controlSlot;
@@ -8659,6 +10165,8 @@ function bindEvents() {
     else if (button.dataset.command) commandClick(button.dataset.command, button);
     else if (button.dataset.inspectSkill) showTooltip(button);
     else if (button.id === 'finishFlameBtn') { if (humanTurn() && !busy()) game.finishFlame(); }
+    // ★ 暗枪（2026-10-05）：同一套"提前收手"的按钮（埋到一半也能按 Esc 收手，见 game.cancel）。
+    else if (button.id === 'finishDarkgunBtn') { if (humanTurn() && !busy()) game.finishDarkgun(); }
   });
   $('startBtn').onclick = startMatch;
   const backBtn = $('backToTitle');
@@ -8937,7 +10445,7 @@ async function boot() {
 }
 boot();
 
-return {};
+return {game, onEvent};
 })();
 </script>
   <script>window.addEventListener('load',()=>{setTimeout(()=>{if(!window.__jojoReady){document.getElementById('bootText').textContent='加载未完成，请检查网络或刷新重试';document.getElementById('bootRetry').hidden=false;}},15000)});document.getElementById('bootRetry').onclick=()=>location.reload();</script>
